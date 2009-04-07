@@ -4,6 +4,7 @@ class GitException(Exception):
         self.msg = msg
     def __repr__(self):
         return "%s: %s" % (type(self).__name__, self.msg)
+    __str__ = __repr__
 
 class GitCommandFailedException(GitException):
     def __init__(self, command, popen):
@@ -12,5 +13,6 @@ class GitCommandFailedException(GitException):
         self.stderr = popen.stderr.read()
         self.stdout = popen.stdout.read()
         self.popen = popen
-        self.msg = "Command %s failed (%s):\n%s" % (command, popen.returncode, popen.stderr.read())
+        self.msg = "Command %s failed (%s):\n%s\n%s" % (command, popen.returncode,
+                              self.stderr, self.stdout)
 

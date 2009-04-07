@@ -6,6 +6,7 @@ import subprocess
 import_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 if __name__ == '__main__':
+    failed = []
     for dirpath, _, filenames in os.walk(os.path.dirname(__file__)):
         for filename in filenames:
             if not filename.startswith("test_"):
@@ -17,5 +18,12 @@ if __name__ == '__main__':
             p.wait()
             if p.returncode != 0:
                 print "\tFailed!"
+                failed.append(filename)
             else:
                 print "\tOK!"
+    if failed:
+        print "*" * 80
+        print "* SOME TESTS FAILED:"
+        for f in failed:
+            print "*", f
+        print "*" * 80
