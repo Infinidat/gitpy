@@ -1,9 +1,12 @@
+import re
 import os
 import subprocess
 
 from . import branch
+from . import commit
 from . import exceptions
 from . import ref
+from .utils import quote_for_shell
 
 class Repository(object):
     def getBranches(self):
@@ -23,8 +26,6 @@ class Repository(object):
         returned = self._executeGitCommand(command)
         assert returned.returncode is not None
         if returned.returncode != 0:
-            import pdb
-            pdb.set_trace()
             raise exceptions.GitCommandFailedException(command, returned)
         return returned
     def _getOutputAssertSuccess(self, command):
@@ -60,6 +61,8 @@ class LocalRepository(Repository):
         return self.path
     def _getCommitByRefName(self, name):
         return commit.Commit(self, self._getOutputAssertSuccess("git rev-parse %s" % name).strip())
+    def _getCommitByPartialHash(self, sha):
+        return self._getCommitByRefName(sha)
     ########################### Initializing a repository ##########################
     def init(self, bare=False):
         if not os.path.exists(self.path):
@@ -82,5 +85,25 @@ class LocalRepository(Repository):
         flags = ["--exclude-standard"] + list(flags)
         return [f.strip()
                 for f in self._getOutputAssertSuccess("git ls-files %s" % (" ".join(flags))).splitlines()]
+    def getStagedFiles(self):
+        return self._getFiles("--cached")
     def getUntrackedFiles(self):
         return self._getFiles("--others")
+    ################################ Staging content ###############################
+    def add(self, path):
+        self._executeGitCommandAssertSuccess("git add %s" % quote_for_shell(path))
+    def addAll(self):
+        return self.add('.')
+    ################################## Committing ##################################
+    def _deduceNewCommitFromCommitOutput(self, output):
+        for pattern in [
+            # new-style commit pattern
+            r"^\[\S+\s+(?:\(root-commit\))?\s+(\S+)\]",
+                        ]:
+            match = re.search(pattern, output)
+            if match:
+                return commit.Commit(self, match.group(1))
+        return None
+    def commit(self, message):
+        output = self._getOutputAssertSuccess("git commit -m %s" % quote_for_shell(message))
+        return self._deduceNewCommitFromCommitOutput(output)

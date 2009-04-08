@@ -39,5 +39,15 @@ class ModifiedRepositories(ModifiedRepositoryTest):
     def testStatus(self):
         untracked = self.repo.getUntrackedFiles()
         self.assertEquals(untracked, [self.FILENAME])
+    def testAdding(self):
+        untracked_files = self.repo.getUntrackedFiles()
+        for u in untracked_files:
+            self.repo.add(u)
+        self.assertEquals(self.repo.getStagedFiles(), untracked_files)
+    def testCommitting(self):
+        self.repo.addAll()
+        self.assertNotEquals(self.repo.getStagedFiles(), [])
+        c = self.repo.commit(message="test commit")
+        print "CREATED", c
 
 unittest.main()
