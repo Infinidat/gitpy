@@ -3,6 +3,7 @@ import unittest
 import os
 import commands
 from utils import get_temporary_location
+from utils import delete_repository
 from pygit import LocalRepository
 from pygit.exceptions import GitException
 
@@ -13,8 +14,7 @@ class EmptyRepositoryTest(unittest.TestCase):
         self.assertFalse(os.path.exists(self.dirname))
     def tearDown(self):
         if os.path.exists(self.dirname):
-            status, _ = commands.getstatusoutput("rm -rf %s" % self.dirname)
-            self.assertEqual(status, 0)
+            delete_repository(self.repo)
 
 class BasicRepositories(EmptyRepositoryTest):
     def testRepositoryInit(self):
