@@ -14,22 +14,24 @@ class Repository(object):
     ############################# internal methods #############################
     def _getWorkingDirectory(self):
         return '.'
-    def _executeGitCommand(self, command):
+    def _executeGitCommand(self, command, cwd=None):
+        if cwd is None:
+            cwd = self._getWorkingDirectory()
         returned = subprocess.Popen(command,
                                     shell=True,
-                                    cwd=self._getWorkingDirectory(),
+                                    cwd=cwd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
         returned.wait()
         return returned
-    def _executeGitCommandAssertSuccess(self, command):
-        returned = self._executeGitCommand(command)
+    def _executeGitCommandAssertSuccess(self, command, **kwargs):
+        returned = self._executeGitCommand(command, **kwargs)
         assert returned.returncode is not None
         if returned.returncode != 0:
             raise exceptions.GitCommandFailedException(command, returned)
         return returned
-    def _getOutputAssertSuccess(self, command):
-        return self._executeGitCommandAssertSuccess(command).stdout.read()
+    def _getOutputAssertSuccess(self, command, **kwargs):
+        return self._executeGitCommandAssertSuccess(command, **kwargs).stdout.read()
 
 ############################## remote repositories #############################
 class RemoteRepository(Repository):
@@ -71,6 +73,14 @@ class LocalRepository(Repository):
             raise exceptions.GitException("Cannot create repository in %s - "
                                "not a directory" % self.path)
         self._executeGitCommandAssertSuccess("git init %s" % ("--bare" if bare else ""))
+    def clone(self, repo):
+        if isinstance(repo, LocalRepository):
+            repo = repo.path
+        elif isinstance(repo, RemoteRepository):
+            repo = repo.url
+        elif not isinstance(repo, basestring):
+            raise TypeError("Cannot clone from %r" % (repo,))
+        self._executeGitCommandAssertSuccess("git clone %s %s" % (repo, self.path), cwd=".")
     ########################### Querying repository refs ###########################
     def getBranches(self):
         for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
