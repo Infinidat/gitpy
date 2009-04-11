@@ -23,8 +23,18 @@ class CollaborationTest(unittest.TestCase):
         utils.delete_repository(self.repo1)
         utils.delete_repository(self.repo2)
 
-    def testCloning(self):
-        pass
-
+    def testCollaboration(self):
+        new_file_base_name = "new_file.txt"
+        new_filename = os.path.join(self.repo1.path, new_file_base_name)
+        with open(new_filename, "wb") as f:
+            print >> f, "hello there!"
+        self.assertTrue(new_file_base_name in self.repo1.getUntrackedFiles())
+        self.repo1.addAll()
+        self.assertTrue(new_file_base_name in self.repo1.getStagedFiles())
+        c = self.repo1.commit(message="add file")
+        self.assertFalse(os.path.exists(os.path.join(self.repo2.path, new_file_base_name)))
+        self.repo2.pull()
+        self.assertTrue(os.path.exists(os.path.join(self.repo2.path, new_file_base_name)))
+        self.assertTrue(c in self.repo2)
 if __name__ == '__main__':
     unittest.main()

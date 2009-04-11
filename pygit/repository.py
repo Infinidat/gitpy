@@ -73,14 +73,16 @@ class LocalRepository(Repository):
             raise exceptions.GitException("Cannot create repository in %s - "
                                "not a directory" % self.path)
         self._executeGitCommandAssertSuccess("git init %s" % ("--bare" if bare else ""))
-    def clone(self, repo):
+    def _asURL(self, repo):
         if isinstance(repo, LocalRepository):
             repo = repo.path
         elif isinstance(repo, RemoteRepository):
             repo = repo.url
         elif not isinstance(repo, basestring):
             raise TypeError("Cannot clone from %r" % (repo,))
-        self._executeGitCommandAssertSuccess("git clone %s %s" % (repo, self.path), cwd=".")
+        return repo
+    def clone(self, repo):
+        self._executeGitCommandAssertSuccess("git clone %s %s" % (self._asURL(repo), self.path), cwd=".")
     ########################### Querying repository refs ###########################
     def getBranches(self):
         for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
@@ -91,6 +93,12 @@ class LocalRepository(Repository):
     def getRefs(self):
         raise NotImplementedError()
     ################################ Querying Status ###############################
+    def containsCommit(self, commit):
+        try:
+            self._executeGitCommandAssertSuccess("git rev-parse %s" % commit)
+        except exceptions.GitException:
+            return False
+        return True
     def _getFiles(self, *flags):
         flags = ["--exclude-standard"] + list(flags)
         return [f.strip()
@@ -99,6 +107,10 @@ class LocalRepository(Repository):
         return self._getFiles("--cached")
     def getUntrackedFiles(self):
         return self._getFiles("--others")
+    def __contains__(self, thing):
+        if isinstance(thing, basestring) or isinstance(thing, commit.Commit):
+            return self.containsCommit(thing)
+        raise NotImplementedError()
     ################################ Staging content ###############################
     def add(self, path):
         self._executeGitCommandAssertSuccess("git add %s" % quote_for_shell(path))
@@ -108,7 +120,7 @@ class LocalRepository(Repository):
     def _deduceNewCommitFromCommitOutput(self, output):
         for pattern in [
             # new-style commit pattern
-            r"^\[\S+\s+(?:\(root-commit\))?\s+(\S+)\]",
+            r"^\[\S+\s+(?:\(root-commit\)\s+)?(\S+)\]",
                         ]:
             match = re.search(pattern, output)
             if match:
@@ -117,3 +129,10 @@ class LocalRepository(Repository):
     def commit(self, message):
         output = self._getOutputAssertSuccess("git commit -m %s" % quote_for_shell(message))
         return self._deduceNewCommitFromCommitOutput(output)
+    ################################# collaboration ################################
+    def pull(self, repo=None):
+        command = "git pull"
+        if repo is not None:
+            command += " "
+            command += self._asURL(repo)
+        self._executeGitCommandAssertSuccess(command)
