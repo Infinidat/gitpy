@@ -11,6 +11,8 @@ if __name__ == '__main__':
         for filename in filenames:
             if not filename.startswith("test_"):
                 continue
+            if not filename.endswith(".py"):
+                continue
             filename = os.path.join(dirpath, filename)
             print filename, "..."
             sys.stdout.flush()

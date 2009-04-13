@@ -95,16 +95,20 @@ class LocalRepository(Repository):
     ################################ Querying Status ###############################
     def containsCommit(self, commit):
         try:
-            self._executeGitCommandAssertSuccess("git rev-parse %s" % commit)
+            self._getCommitByRefName(commit)
         except exceptions.GitException:
             return False
         return True
+    def getHead(self):
+        return self._getCommitByRefName("HEAD")
     def _getFiles(self, *flags):
         flags = ["--exclude-standard"] + list(flags)
         return [f.strip()
                 for f in self._getOutputAssertSuccess("git ls-files %s" % (" ".join(flags))).splitlines()]
     def getStagedFiles(self):
         return self._getFiles("--cached")
+    def getUnchangedFiles(self):
+        return self._getFiles()
     def getUntrackedFiles(self):
         return self._getFiles("--others")
     def __contains__(self, thing):
@@ -129,7 +133,28 @@ class LocalRepository(Repository):
     def commit(self, message):
         output = self._getOutputAssertSuccess("git commit -m %s" % quote_for_shell(message))
         return self._deduceNewCommitFromCommitOutput(output)
+    ################################ Changing state ################################
+    def _reset(self, thing, flag=None):
+        if isinstance(thing, ref.Ref):
+            thing = thing.name
+        if flag is None:
+            flag = ""
+        else:
+            flag = "--%s" % flag
+        self._executeGitCommandAssertSuccess("git reset %s %s" % (flag, thing))
+    def resetSoft(self, thing):
+        return self._reset(thing, "soft")
+    def resetHard(self, thing):
+        return self._reset(thing, "hard")
+    def resetMixed(self, thing):
+        return self._reset(thing, "mixed")
     ################################# collaboration ################################
+    def fetch(self, repo=None):
+        command = "git fetch"
+        if repo is not None:
+            command += " "
+            command += self._asURL(repo)
+        self._executeGitCommandAssertSuccess(command)
     def pull(self, repo=None):
         command = "git pull"
         if repo is not None:

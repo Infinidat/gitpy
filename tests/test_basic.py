@@ -48,6 +48,6 @@ class ModifiedRepositories(ModifiedRepositoryTest):
         self.repo.addAll()
         self.assertNotEquals(self.repo.getStagedFiles(), [])
         c = self.repo.commit(message="test commit")
-        print "CREATED", c
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
