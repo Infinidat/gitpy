@@ -86,10 +86,9 @@ class LocalRepository(Repository):
     ########################### Querying repository refs ###########################
     def getBranches(self):
         for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
-            branch_name = strip()
             if branch_name.startswith("*"):
-                brach_name = brach_name[1:]
-            yield branch.Branch(self, brach_name.strip())
+                branch_name = branch_name[1:]
+            yield branch.Branch(self, branch_name.strip())
     def getRefs(self):
         raise NotImplementedError()
     ################################ Querying Status ###############################
@@ -123,6 +122,10 @@ class LocalRepository(Repository):
     def addAll(self):
         return self.add('.')
     ################################## Committing ##################################
+    def _normalizeRefName(self, thing):
+        if isinstance(thing, ref.Ref):
+            thing = thing.name
+        return str(thing)
     def _deduceNewCommitFromCommitOutput(self, output):
         for pattern in [
             # new-style commit pattern
@@ -136,6 +139,26 @@ class LocalRepository(Repository):
         output = self._getOutputAssertSuccess("git commit -m %s" % quote_for_shell(message))
         return self._deduceNewCommitFromCommitOutput(output)
     ################################ Changing state ################################
+    def createBranch(self, name, startingPoint=None):
+        command = "git branch %s" % name
+        if startingPoint is not None:
+            command += str(startingPoint)
+        self._executeGitCommandAssertSuccess(command)
+        return branch.Branch(self, name)
+    def checkout(self, thing=None, targetBranch=None, files=()):
+        if thing is None:
+            thing = ""
+        command = "git checkout %s" % (self._normalizeRefName(thing),)
+        if targetBranch is not None:
+            command += " -b %s" % (targetBranch,)
+        if files:
+            command += " -- %s" % " ".join(files)
+        self._executeGitCommandAssertSuccess(command)
+    def merge(self, what):
+        try:
+            self._executeGitCommandAssertSuccess("git merge %s" % (self._normalizeRefName(what)))
+        except exceptions.GitException:
+            raise NotImplementedError()
     def _reset(self, thing, flag=None):
         if isinstance(thing, ref.Ref):
             thing = thing.name

@@ -1,4 +1,5 @@
 from ref import Ref
 
 class Branch(Ref):
-    pass
+    def delete(self):
+        self.repo._executeGitCommandAssertSuccess("git branch -D %s" % (self.name,))
