@@ -38,6 +38,14 @@ class TestReset(CommittedRepositoryTest):
             self.assertNotEquals(self.repo.getHead(), c)
             self.repo.resetHard(c)
             self.assertEquals(self.repo.getHead(), c)
+    def testSoftReset(self):
+        c = self.commitSomeChange()
+        modified_files = c.getChange()
+        for syntax in ("HEAD^", c.getParents()[0], "%s^" % (c,)):
+            self.repo.resetSoft(syntax)
+            self.assertEquals(self.repo.getChangedFiles(), modified_files)
+            self.repo.resetHard(c)
+
 
 if __name__ == '__main__':
     unittest.main()

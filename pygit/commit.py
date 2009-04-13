@@ -1,4 +1,5 @@
 from .ref import Ref
+from .files import ModifiedFile
 
 SHA1_LENGTH = 40
 
@@ -20,4 +21,10 @@ class Commit(Ref):
     def getParents(self):
         output = self.repo._getOutputAssertSuccess("git rev-list %s --parents -1" % self)
         return [Commit(self.repo, sha.strip()) for sha in output.split()[1:]]
+    def getChange(self):
+        returned = []
+        for line in self.repo._getOutputAssertSuccess("git diff --raw %s" % self):
+            _, _, _, _, _, filename = line.split()
+            returned.append(ModifiedFile(filename))
+        return returned
 

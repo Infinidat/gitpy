@@ -109,6 +109,8 @@ class LocalRepository(Repository):
         return self._getFiles("--cached")
     def getUnchangedFiles(self):
         return self._getFiles()
+    def getChangedFiles(self):
+        return self._getFiles("--modified")
     def getUntrackedFiles(self):
         return self._getFiles("--others")
     def __contains__(self, thing):
