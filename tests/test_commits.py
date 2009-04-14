@@ -25,7 +25,11 @@ class CommittedRepositoryTest(ModifiedRepositoryTest):
 class Committing(CommittedRepositoryTest):
     def testCommitFields(self):
         c = self.commitSomeChange()
-        #todo: write this...
+        c.getAuthorName()
+        c.getAuthorEmail()
+        c.getDate()
+        c.getSubject()
+        c.getMessageBody()
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):
         c = self.commitSomeChange()

@@ -51,4 +51,16 @@ class Commit(Ref):
             _, _, _, _, _, filename = line.split()
             returned.append(ModifiedFile(filename))
         return returned
-
+    ############################ Misc. Commit attributes ###########################
+    def _getCommitField(self, field):
+        return self.repo._executeGitCommandAssertSuccess("git log -1 --pretty=format:%s %s" % (field, self)).stdout.read().strip()
+    def getAuthorName(self):
+        return self._getCommitField("%an")
+    def getAuthorEmail(self):
+        return self._getCommitField("%ae")
+    def getDate(self):
+        return int(self._getCommitField("%at"))
+    def getSubject(self):
+        return self._getCommitField("%s")
+    def getMessageBody(self):
+        return self._getCommitField("%b")
