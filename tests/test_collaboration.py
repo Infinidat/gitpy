@@ -2,7 +2,7 @@
 import os
 import unittest
 import utils
-from pygit import LocalRepository
+from git import LocalRepository
 
 class CollaborationTest(unittest.TestCase):
     def setUp(self):

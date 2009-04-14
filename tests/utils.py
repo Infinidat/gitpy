@@ -4,7 +4,7 @@ import time
 import random
 import shutil
 import itertools
-from pygit import LocalRepository
+from git import LocalRepository
 
 _filename_gen = (os.path.join("/tmp", "temp___%s" % i) for i in itertools.count())
 

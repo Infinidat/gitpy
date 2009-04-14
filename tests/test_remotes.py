@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import unittest
 from test_commits import CommittedRepositoryTest
-from pygit import LocalRepository
+from git import LocalRepository
 import utils
 
 class RemoteTest(CommittedRepositoryTest):

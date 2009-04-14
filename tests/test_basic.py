@@ -4,8 +4,8 @@ import os
 import commands
 from utils import get_temporary_location
 from utils import delete_repository
-from pygit import LocalRepository
-from pygit.exceptions import GitException
+from git import LocalRepository
+from git.exceptions import GitException
 
 class EmptyRepositoryTest(unittest.TestCase):
     def setUp(self):

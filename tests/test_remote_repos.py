@@ -3,7 +3,7 @@ import unittest
 import os
 import commands
 from utils import get_temporary_location
-from pygit import RemoteRepository
+from git import RemoteRepository
 
 class RemoteRepositories(unittest.TestCase):
     def setUp(self):

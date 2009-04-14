@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import unittest
 import utils
-from pygit import LocalRepository
+from git import LocalRepository
 
 class TestWorkflows(unittest.TestCase):
     def setUp(self):

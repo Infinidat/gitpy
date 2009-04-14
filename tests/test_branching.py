@@ -1,6 +1,6 @@
 #! /usr/bin/python
 import unittest
-import pygit
+import git
 from test_commits import CommittedRepositoryTest
 
 class TestBranching(CommittedRepositoryTest):
