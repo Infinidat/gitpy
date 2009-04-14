@@ -38,7 +38,6 @@ class TestBranching(CommittedRepositoryTest):
         self.repo.merge(branch)
         self.assertEquals(self.repo.getHead(), branch.getHead())
         
-        
 
 if __name__ == '__main__':
     unittest.main()
