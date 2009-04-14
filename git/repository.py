@@ -84,6 +84,8 @@ class LocalRepository(Repository):
     def __init__(self, path):
         super(LocalRepository, self).__init__()
         self.path = path
+    def __repr__(self):
+        return "<Git Repository at %s>" % (self.path,)
     def _getWorkingDirectory(self):
         return self.path
     def _getCommitByRefName(self, name):
