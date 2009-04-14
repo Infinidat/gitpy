@@ -30,6 +30,7 @@ from . import branch
 from . import commit
 from . import exceptions
 from . import ref
+from . import remotes
 from .utils import quote_for_shell
 
 class Repository(object):
@@ -118,7 +119,7 @@ class LocalRepository(Repository):
     ################################ Querying Status ###############################
     def containsCommit(self, commit):
         try:
-            self._getCommitByRefName(commit)
+            self._executeGitCommandAssertSuccess("git log -1 %s" % (commit,))
         except exceptions.GitException:
             return False
         return True
@@ -198,6 +199,9 @@ class LocalRepository(Repository):
     def resetMixed(self, thing):
         return self._reset(thing, "mixed")
     ################################# collaboration ################################
+    def addRemote(self, name, url):
+        self._executeGitCommandAssertSuccess("git remote add %s %s" % (name, url))
+        return remotes.Remote(self, name, url)
     def fetch(self, repo=None):
         command = "git fetch"
         if repo is not None:
