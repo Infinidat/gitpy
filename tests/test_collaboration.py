@@ -36,5 +36,6 @@ class CollaborationTest(unittest.TestCase):
         self.repo2.pull()
         self.assertTrue(os.path.exists(os.path.join(self.repo2.path, new_file_base_name)))
         self.assertTrue(c in self.repo2)
+        
 if __name__ == '__main__':
     unittest.main()
