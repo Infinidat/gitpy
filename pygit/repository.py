@@ -184,20 +184,17 @@ class LocalRepository(Repository):
             self._executeGitCommandAssertSuccess("git merge %s" % (self._normalizeRefName(what)))
         except exceptions.GitException:
             raise NotImplementedError()
-    def _reset(self, thing, flag=None):
-        if isinstance(thing, ref.Ref):
-            thing = thing.name
-        if flag is None:
-            flag = ""
-        else:
-            flag = "--%s" % flag
-        self._executeGitCommandAssertSuccess("git reset %s %s" % (flag, thing))
-    def resetSoft(self, thing):
-        return self._reset(thing, "soft")
-    def resetHard(self, thing):
-        return self._reset(thing, "hard")
-    def resetMixed(self, thing):
-        return self._reset(thing, "mixed")
+    def _reset(self, flag, thing):
+        command = "git reset %s %s" % (
+            flag,
+            self._normalizeRefName(thing))
+        self._executeGitCommandAssertSuccess(command)
+    def resetSoft(self, thing="HEAD"):
+        return self._reset("--soft", thing)
+    def resetHard(self, thing="HEAD"):
+        return self._reset("--hard", thing)
+    def resetMixed(self, thing="HEAD"):
+        return self._reset("--mixed", thing)
     ################################# collaboration ################################
     def addRemote(self, name, url):
         self._executeGitCommandAssertSuccess("git remote add %s %s" % (name, url))
@@ -213,4 +210,12 @@ class LocalRepository(Repository):
         if repo is not None:
             command += " "
             command += self._asURL(repo)
+        self._executeGitCommandAssertSuccess(command)
+    def push(self, dest=None):
+        command = "git push"
+        if dest:
+            if isinstance(dest, remotes.Remote):
+                dest = dest.name
+            command += " "
+            command += dest
         self._executeGitCommandAssertSuccess(command)
