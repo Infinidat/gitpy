@@ -20,8 +20,19 @@ class TestWorkflows(unittest.TestCase):
         utils.commit_change(new_repo)
         new_repo.push()
         self.repo.resetHard()
+        self.assertReposEqual(self.repo, new_repo)        
+        utils.delete_repository(new_repo)
+    def testCloneRebaseModifyPush(self):
+        new_repo = LocalRepository(utils.get_temporary_location())
+        new_repo.clone(self.repo)
         self.assertReposEqual(self.repo, new_repo)
-        
+        utils.commit_change(self.repo)
+        utils.commit_change(new_repo)
+        new_repo.fetch()
+        new_repo.rebase('origin/master')
+        new_repo.push()
+        self.repo.resetHard()
+        self.assertReposEqual(self.repo, new_repo)        
         utils.delete_repository(new_repo)
 
 if __name__ == '__main__':

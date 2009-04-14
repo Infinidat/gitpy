@@ -219,3 +219,5 @@ class LocalRepository(Repository):
             command += " "
             command += dest
         self._executeGitCommandAssertSuccess(command)
+    def rebase(self, src):
+        self._executeGitCommandAssertSuccess("git rebase %s" % self._normalizeRefName(src))
