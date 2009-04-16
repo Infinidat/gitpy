@@ -24,3 +24,4 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from repository import RemoteRepository
 from repository import LocalRepository
+from repository import clone

@@ -22,22 +22,10 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from ref import Ref
-
-class Branch(Ref):
-    def delete(self):
-        raise NotImplementedError()
-class LocalBranch(Branch):
-    def delete(self):
-        self.repo._executeGitCommandAssertSuccess("git branch -D %s" % (self.name,))
-class RemoteBranch(Branch):
-    pass
-class RegisteredRemoteBranch(RemoteBranch):
-    def __init__(self, repo, remote, name):
-        super(RegisteredRemoteBranch, self).__init__(repo, name)
-        self.remote = remote
-    def delete(self):
-        """
-        Deletes the actual branch on the remote repository!
-        """
-        self.repo.push(self.remote, fromBranch="", toBranch=self, force=True)
+class GitConfiguration(object):
+    def __init__(self, repo):
+        super(GitConfiguration, self).__init__()
+        self.repo = repo
+    def getDict(self):
+        return dict(line.strip().split("=",1)
+                    for line in self.repo._getOutputAssertSuccess("git config -l").splitlines())

@@ -7,7 +7,8 @@ import_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 if __name__ == '__main__':
     failed = []
-    for dirpath, _, filenames in os.walk(os.path.dirname(__file__)):
+    dirname = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
+    for dirpath, _, filenames in os.walk(dirname):
         for filename in filenames:
             if not filename.startswith("test_"):
                 continue
@@ -16,7 +17,7 @@ if __name__ == '__main__':
             filename = os.path.join(dirpath, filename)
             print filename, "..."
             sys.stdout.flush()
-            p = subprocess.Popen(filename, env=dict(PYTHONPATH=import_path))
+            p = subprocess.Popen(filename, env=dict(PYTHONPATH=import_path), cwd="/tmp")
             p.wait()
             if p.returncode != 0:
                 print "\tFailed!"

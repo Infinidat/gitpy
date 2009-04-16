@@ -28,14 +28,14 @@ import subprocess
 
 from . import branch
 from . import commit
+from . import config
 from . import exceptions
 from . import ref
+from . import ref_container
 from . import remotes
 from .utils import quote_for_shell
 
-class Repository(object):
-    def getBranches(self):
-        raise NotImplementedError()
+class Repository(ref_container.RefContainer):
     ############################# internal methods #############################
     def _getWorkingDirectory(self):
         return '.'
@@ -63,27 +63,23 @@ class RemoteRepository(Repository):
     def __init__(self, url):
         super(RemoteRepository, self).__init__()
         self.url = url
-    def getRefs(self):
+    def _getRefs(self, prefix):
         output = self._executeGitCommandAssertSuccess("git ls-remote %s" % (self.url,))
         for output_line in output.stdout:
             commit, refname = output_line.split()
-            for prefix, cls in [('refs/heads/', branch.Branch),
-                                ('refs/tags/', None),
-                                ('refs/remotes/', None),
-                                ('', ref.Ref)]:
-                if refname.startswith(prefix):
-                    if cls is not None:
-                        yield cls(self, refname[len(prefix):])
-                    break
+            if refname.startswith(prefix):
+                yield refname[len(prefix):]
+    def _getRefsAsClass(self, prefix, cls):
+        return [cls(self, ref) for ref in self._getRefs(prefix)]
     def getBranches(self):
-        return [ref for ref in self.getRefs()
-                if isinstance(ref, branch.Branch)]
+        return self._getRefsAsClass('refs/heads/', branch.RemoteBranch)
 
 ############################## local repositories ##############################
 class LocalRepository(Repository):
     def __init__(self, path):
         super(LocalRepository, self).__init__()
         self.path = path
+        self.config = config.GitConfiguration(self)
     def __repr__(self):
         return "<Git Repository at %s>" % (self.path,)
     def _getWorkingDirectory(self):
@@ -112,12 +108,21 @@ class LocalRepository(Repository):
         self._executeGitCommandAssertSuccess("git clone %s %s" % (self._asURL(repo), self.path), cwd=".")
     ########################### Querying repository refs ###########################
     def getBranches(self):
+        returned = []
         for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
             if branch_name.startswith("*"):
                 branch_name = branch_name[1:]
-            yield branch.Branch(self, branch_name.strip())
-    def getRefs(self):
-        raise NotImplementedError()
+            returned.append(branch.LocalBranch(self, branch_name.strip()))
+        return returned
+    def getRemotes(self):
+        config_dict = self.config.getDict()
+        returned = []
+        for line in self._getOutputAssertSuccess("git remote show -n").splitlines():
+            line = line.strip()
+            returned.append(remotes.Remote(self, line, config_dict.get('remote.%s.url' % line.strip())))
+        return returned
+    def getRemoteByName(self, name):
+        return self._getByName(self.getRemotes, name)
     ################################ Querying Status ###############################
     def containsCommit(self, commit):
         try:
@@ -171,7 +176,7 @@ class LocalRepository(Repository):
         if startingPoint is not None:
             command += str(startingPoint)
         self._executeGitCommandAssertSuccess(command)
-        return branch.Branch(self, name)
+        return branch.LocalBranch(self, name)
     def checkout(self, thing=None, targetBranch=None, files=()):
         if thing is None:
             thing = ""
@@ -213,13 +218,35 @@ class LocalRepository(Repository):
             command += " "
             command += self._asURL(repo)
         self._executeGitCommandAssertSuccess(command)
-    def push(self, dest=None):
+    def _getRefspec(self, fromBranch=None, toBranch=None, force=False):
+        returned = ""
+        if fromBranch is not None:
+            returned += self._normalizeRefName(fromBranch)
+        if returned or toBranch is not None:
+            returned += ":"
+        if toBranch is not None:
+            returned += self._normalizeRefName(toBranch)
+        if returned and force:
+            returned = "+%s" % returned
+        return returned
+    def push(self, remote=None, fromBranch=None, toBranch=None, force=False):
         command = "git push"
-        if dest:
-            if isinstance(dest, remotes.Remote):
-                dest = dest.name
-            command += " "
-            command += dest
-        self._executeGitCommandAssertSuccess(command)
+        #build push arguments
+        refspec = self._getRefspec(toBranch=toBranch, fromBranch=fromBranch, force=force)
+
+        if refspec:
+            remote = "origin"
+        self._executeGitCommandAssertSuccess("git push %s %s" % (
+            self._normalizeRefName(remote) if remote is not None else "",
+            refspec))
     def rebase(self, src):
         self._executeGitCommandAssertSuccess("git rebase %s" % self._normalizeRefName(src))
+    ################################# Configuration ################################
+    def getConfig(self):
+        return dict(s.split("=",1) for s in self._getOutputAssertSuccess("git config -l"))
+
+################################### Shortcuts ##################################
+def clone(source, location):
+    returned = LocalRepository(location)
+    returned.clone(source)
+    return returned

@@ -3,6 +3,8 @@ import os
 import unittest
 import utils
 from git import LocalRepository
+from git import RemoteRepository
+from git.exceptions import NonexistentRefException
 
 class CollaborationTest(unittest.TestCase):
     def setUp(self):
@@ -36,6 +38,17 @@ class CollaborationTest(unittest.TestCase):
         self.repo2.pull()
         self.assertTrue(os.path.exists(os.path.join(self.repo2.path, new_file_base_name)))
         self.assertTrue(c in self.repo2)
+    def testRemoteBranchDeletion(self):
+        self.repo1.createBranch("testme")
+        self.repo2.fetch()
+        remote_branch = self.repo2.getRemoteByName("origin").getBranchByName("testme")
+        remote_branch.delete()
+        try:
+            self.repo1.getBranchByName("testme")
+        except NonexistentRefException:
+            pass
+        else:
+            self.fail("Did not fail!")
         
 if __name__ == '__main__':
     unittest.main()

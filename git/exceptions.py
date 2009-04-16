@@ -39,4 +39,5 @@ class GitCommandFailedException(GitException):
         self.popen = popen
         self.msg = "Command %s failed (%s):\n%s\n%s" % (command, popen.returncode,
                               self.stderr, self.stdout)
-
+class NonexistentRefException(GitException):
+    pass
