@@ -29,4 +29,4 @@ setup(name="pygit",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
       version="0.1",
-      packages=["gitlib"])
+      packages=["git"])
