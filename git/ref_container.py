@@ -37,3 +37,9 @@ class RefContainer(object):
         raise exceptions.NonexistentRefException(name)
     def getBranchByName(self, name):
         return self._getByName(self.getBranches, name)
+    def hasBranch(self, name):
+        try:
+            self.getBranchByName(name)
+            return True
+        except exceptions.NonexistentRefException:
+            return False
