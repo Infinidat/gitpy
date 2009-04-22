@@ -36,6 +36,8 @@ class RegisteredRemoteBranch(RemoteBranch):
     def __init__(self, repo, remote, name):
         super(RegisteredRemoteBranch, self).__init__(repo, name)
         self.remote = remote
+    def getHead(self):
+        return self.repo._getCommitByRefName("%s/%s" % (self.remote.name, self.name))
     def delete(self):
         """
         Deletes the actual branch on the remote repository!

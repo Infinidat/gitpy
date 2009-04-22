@@ -42,6 +42,7 @@ class CollaborationTest(unittest.TestCase):
         self.repo1.createBranch("testme")
         self.repo2.fetch()
         remote_branch = self.repo2.getRemoteByName("origin").getBranchByName("testme")
+        self.assertEquals(remote_branch.getHead(), self.repo1.getBranchByName("testme").getHead())
         remote_branch.delete()
         try:
             self.repo1.getBranchByName("testme")
