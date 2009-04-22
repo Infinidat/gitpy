@@ -144,6 +144,9 @@ class LocalRepository(Repository):
         return self._getFiles("--modified")
     def getUntrackedFiles(self):
         return self._getFiles("--others")
+    def isValid(self):
+        return os.path.isdir(os.path.join(self.path, ".git")) or \
+               (os.path.isfile(os.path.join(self.path, "HEAD")) and os.path.isdir(os.path.join(self.path, "objects")))
     def __contains__(self, thing):
         if isinstance(thing, basestring) or isinstance(thing, commit.Commit):
             return self.containsCommit(thing)

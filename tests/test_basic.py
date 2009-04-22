@@ -12,6 +12,7 @@ class EmptyRepositoryTest(unittest.TestCase):
         self.dirname = get_temporary_location()
         self.repo = LocalRepository(self.dirname)
         self.assertFalse(os.path.exists(self.dirname))
+        self.assertFalse(self.repo.isValid())
     def tearDown(self):
         if os.path.exists(self.dirname):
             delete_repository(self.repo)
@@ -19,6 +20,7 @@ class EmptyRepositoryTest(unittest.TestCase):
 class BasicRepositories(EmptyRepositoryTest):
     def testRepositoryInit(self):
         self.repo.init()
+        self.assertTrue(self.repo.isValid())
         self.failUnless(os.path.isdir(self.dirname))
         self.failUnless(os.path.isdir(os.path.join(self.dirname, ".git")))
     def testRepositoryInitWhenExists(self):
