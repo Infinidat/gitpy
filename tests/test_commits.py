@@ -30,6 +30,7 @@ class Committing(CommittedRepositoryTest):
         c.getDate()
         c.getSubject()
         c.getMessageBody()
+
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):
         c = self.commitSomeChange()
@@ -50,6 +51,15 @@ class TestReset(CommittedRepositoryTest):
             self.assertEquals(self.repo.getChangedFiles(), modified_files)
             self.repo.resetHard(c)
 
+class TestMergeBase(CommittedRepositoryTest):
+    def testMergeBase(self):
+        c1 = self.commitSomeChange()
+        c2 = self.commitSomeChange()
+        self.assertEquals(c1 & c2, c1)
+        self.assertEquals(self.repo.getMergeBase(c1, c2), c1)
+        self.repo.resetHard(c1.getParents()[0])
+        c3 = self.commitSomeChange()
+        self.assertEquals(c3 & c2, c3.getParents()[0])
 
 if __name__ == '__main__':
     unittest.main()

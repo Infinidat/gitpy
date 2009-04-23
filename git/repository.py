@@ -57,6 +57,16 @@ class Repository(ref_container.RefContainer):
         return returned
     def _getOutputAssertSuccess(self, command, **kwargs):
         return self._executeGitCommandAssertSuccess(command, **kwargs).stdout.read()
+    def _getMergeBase(self, a, b):
+        raise NotImplementedError()
+    def getMergeBase(self, a, b):
+        repo = self
+        if isinstance(b, commit.Commit) and isinstance(b.repo, LocalRepository):
+            repo = b.repo
+        elif isinstance(a, commit.Commit) and isinstance(a.repo, LocalRepository):
+            repo = a.repo
+        return repo._getMergeBase(a, b)
+
 
 ############################## remote repositories #############################
 class RemoteRepository(Repository):
@@ -73,7 +83,6 @@ class RemoteRepository(Repository):
         return [cls(self, ref) for ref in self._getRefs(prefix)]
     def getBranches(self):
         return self._getRefsAsClass('refs/heads/', branch.RemoteBranch)
-
 ############################## local repositories ##############################
 class LocalRepository(Repository):
     def __init__(self, path):
@@ -123,6 +132,13 @@ class LocalRepository(Repository):
         return returned
     def getRemoteByName(self, name):
         return self._getByName(self.getRemotes, name)
+    def _getMergeBase(self, a, b):
+        returned = self._executeGitCommandAssertSuccess("git merge-base %s %s" % (a, b))
+        if returned.returncode == 0:
+            return commit.Commit(self, returned.stdout.read().strip())
+        # make sure this is not a misc. error with git 
+        unused = self.getHead()
+        return None
     ################################ Querying Status ###############################
     def containsCommit(self, commit):
         try:

@@ -64,3 +64,7 @@ class Commit(Ref):
         return self._getCommitField("%s")
     def getMessageBody(self):
         return self._getCommitField("%b")
+    ################################ Advance queries ###############################
+    def getMergeBase(self, other):
+        return self.repo.getMergeBase(self, other)
+    __and__ = getMergeBase
