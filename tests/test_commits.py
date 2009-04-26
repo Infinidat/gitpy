@@ -16,10 +16,13 @@ class CommittedRepositoryTest(ModifiedRepositoryTest):
         with open(full_filename, "ab") as f:
             print >>f, "some change at", time.asctime()
         return filename
-    def commitSomeChange(self):
+    def commitSomeChange(self, name="new change"):
+        previous = self.repo.getHead()
         filename = self.makeSomeChange()
         self.repo.add(filename)
-        return self.repo.commit(message="new change")
+        returned =  self.repo.commit(message=name)
+        self.assertNotEquals(self.repo.getHead(), previous)
+        return returned
 
 
 class Committing(CommittedRepositoryTest):
@@ -53,12 +56,13 @@ class TestReset(CommittedRepositoryTest):
 
 class TestMergeBase(CommittedRepositoryTest):
     def testMergeBase(self):
-        c1 = self.commitSomeChange()
-        c2 = self.commitSomeChange()
+        c1 = self.commitSomeChange("c1")
+        c2 = self.commitSomeChange("c2")
         self.assertEquals(c1 & c2, c1)
         self.assertEquals(self.repo.getMergeBase(c1, c2), c1)
         self.repo.resetHard(c1.getParents()[0])
-        c3 = self.commitSomeChange()
+        c3 = self.commitSomeChange("c3")
+        self.assertEquals(c1.getParents(), c3.getParents())
         self.assertEquals(c3 & c2, c3.getParents()[0])
 
 if __name__ == '__main__':
