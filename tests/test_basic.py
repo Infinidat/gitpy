@@ -36,6 +36,7 @@ class ModifiedRepositoryTest(EmptyRepositoryTest):
         self.repo.init()
         with open(os.path.join(self.repo.path, self.FILENAME), "wb") as f:
             print >>f, "Hey!"
+        self.assertFalse(self.repo.isWorkingDirectoryClean())
 
 class ModifiedRepositories(ModifiedRepositoryTest):
     def testStatus(self):
@@ -46,10 +47,13 @@ class ModifiedRepositories(ModifiedRepositoryTest):
         for u in untracked_files:
             self.repo.add(u)
         self.assertEquals(self.repo.getStagedFiles(), untracked_files)
+        self.assertFalse(self.repo.isWorkingDirectoryClean())
     def testCommitting(self):
         self.repo.addAll()
         self.assertNotEquals(self.repo.getStagedFiles(), [])
         c = self.repo.commit(message="test commit")
+        self.assertTrue(self.repo.isWorkingDirectoryClean())
+        self.assertEquals(self.repo.getStagedFiles(), [])
 
 if __name__ == '__main__':
     unittest.main()

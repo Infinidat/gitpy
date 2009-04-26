@@ -153,16 +153,28 @@ class LocalRepository(Repository):
         return [f.strip()
                 for f in self._getOutputAssertSuccess("git ls-files %s" % (" ".join(flags))).splitlines()]
     def getStagedFiles(self):
-        return self._getFiles("--cached")
+        if self.isInitialized():
+            return [line.split()[-1] for line in
+                    self._getOutputAssertSuccess("git diff --staged --raw").splitlines()]
+        else:
+            return self._getFiles('--cached')
     def getUnchangedFiles(self):
         return self._getFiles()
     def getChangedFiles(self):
         return self._getFiles("--modified")
     def getUntrackedFiles(self):
         return self._getFiles("--others")
+    def isInitialized(self):
+        try:
+            self.getHead()
+            return True
+        except exceptions.GitException:
+            return False
     def isValid(self):
         return os.path.isdir(os.path.join(self.path, ".git")) or \
                (os.path.isfile(os.path.join(self.path, "HEAD")) and os.path.isdir(os.path.join(self.path, "objects")))
+    def isWorkingDirectoryClean(self):
+        return not (self.getUntrackedFiles() or self.getChangedFiles() or self.getStagedFiles())
     def __contains__(self, thing):
         if isinstance(thing, basestring) or isinstance(thing, commit.Commit):
             return self.containsCommit(thing)
