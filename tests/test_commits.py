@@ -64,6 +64,10 @@ class TestMergeBase(CommittedRepositoryTest):
         c3 = self.commitSomeChange("c3")
         self.assertEquals(c1.getParents(), c3.getParents())
         self.assertEquals(c3 & c2, c3.getParents()[0])
+        self.assertTrue(c3.getParents()[0] in c3)
+        self.assertTrue(c1 in c2)
+        self.assertFalse(c2 in c3)
+        self.assertFalse(c3 in c2)
 
 if __name__ == '__main__':
     unittest.main()
