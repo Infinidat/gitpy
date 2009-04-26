@@ -28,5 +28,5 @@ setup(name="pygit",
       description="Python bindings for the Git source control system",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
-      version="0.1",
+      version="0.2",
       packages=["git"])
