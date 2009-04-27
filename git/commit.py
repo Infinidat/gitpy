@@ -69,5 +69,7 @@ class Commit(Ref):
         return self.repo.getMergeBase(self, other)
     __and__ = getMergeBase
     def contains(self, other):
+        if isinstance(other, Ref):
+            other = other.getHead()
         return self.getMergeBase(other) == other
     __contains__ = contains

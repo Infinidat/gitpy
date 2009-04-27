@@ -133,6 +133,10 @@ class LocalRepository(Repository):
     def getRemoteByName(self, name):
         return self._getByName(self.getRemotes, name)
     def _getMergeBase(self, a, b):
+        if isinstance(a, ref.Ref):
+            a = a.getHead()
+        if isinstance(b, ref.Ref):
+            b = b.getHead()
         returned = self._executeGitCommandAssertSuccess("git merge-base %s %s" % (a, b))
         if returned.returncode == 0:
             return commit.Commit(self, returned.stdout.read().strip())
