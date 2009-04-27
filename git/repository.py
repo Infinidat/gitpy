@@ -268,6 +268,8 @@ class LocalRepository(Repository):
         if returned or toBranch is not None:
             returned += ":"
         if toBranch is not None:
+            if isinstance(toBranch, branch.RegisteredRemoteBranch):
+                toBranch = toBranch.name
             returned += self._normalizeRefName(toBranch)
         if returned and force:
             returned = "+%s" % returned
