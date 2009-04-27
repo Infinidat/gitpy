@@ -29,7 +29,9 @@ class Ref(object):
         self.name = name
     def getHead(self):
         return self.repo._getCommitByRefName(self.name)
+    def getNormalizedName(self):
+        return self.name
     def __eq__(self, ref):
         return (type(ref) is type(self) and ref.name == self.name)
     def __repr__(self):
-        return "%s@%s" % (self.repo, self.name)
+        return "<%s %s>" % (type(self).__name__, self.getNormalizedName())

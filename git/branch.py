@@ -27,6 +27,8 @@ from ref import Ref
 class Branch(Ref):
     def delete(self):
         raise NotImplementedError()
+    def __repr__(self):
+        return "<branch %s>" % (self.name,)
 class LocalBranch(Branch):
     def delete(self):
         self.repo._executeGitCommandAssertSuccess("git branch -D %s" % (self.name,))
@@ -43,3 +45,5 @@ class RegisteredRemoteBranch(RemoteBranch):
         Deletes the actual branch on the remote repository!
         """
         self.repo.push(self.remote, fromBranch="", toBranch=self, force=True)
+    def getNormalizedName(self):
+        return "%s/%s" % (self.remote.name, self.name)

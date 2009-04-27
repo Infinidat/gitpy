@@ -187,7 +187,7 @@ class LocalRepository(Repository):
     ################################## Committing ##################################
     def _normalizeRefName(self, thing):
         if isinstance(thing, ref.Ref):
-            thing = thing.name
+            thing = thing.getNormalizedName()
         return str(thing)
     def _deduceNewCommitFromCommitOutput(self, output):
         for pattern in [
