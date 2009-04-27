@@ -68,6 +68,10 @@ class TestMergeBase(CommittedRepositoryTest):
         self.assertTrue(c1 in c2)
         self.assertFalse(c2 in c3)
         self.assertFalse(c3 in c2)
+        b1 = self.repo.createBranch('b1', startingPoint=c1)
+        self.assertTrue(b1 in c2)
+        b3 = self.repo.createBranch('b3', startingPoint=c3)
+        self.assertFalse(b3 in c2)
 
 if __name__ == '__main__':
     unittest.main()

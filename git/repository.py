@@ -207,7 +207,7 @@ class LocalRepository(Repository):
         return self._deduceNewCommitFromCommitOutput(output)
     ################################ Changing state ################################
     def createBranch(self, name, startingPoint=None):
-        command = "git branch %s" % name
+        command = "git branch %s " % name
         if startingPoint is not None:
             command += str(startingPoint)
         self._executeGitCommandAssertSuccess(command)
