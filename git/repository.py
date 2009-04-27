@@ -221,11 +221,12 @@ class LocalRepository(Repository):
         if files:
             command += " -- %s" % " ".join(files)
         self._executeGitCommandAssertSuccess(command)
-    def merge(self, what):
+    def merge(self, what, allowFastForward=True):
         try:
-            self._executeGitCommandAssertSuccess("git merge %s" % (self._normalizeRefName(what)))
+            self._executeGitCommandAssertSuccess("git merge %s %s" % (self._normalizeRefName(what),
+                                                  "--no-ff" if not allowFastForward else ""))
         except exceptions.GitException:
-            raise NotImplementedError()
+            raise
     def _reset(self, flag, thing):
         command = "git reset %s %s" % (
             flag,
