@@ -28,3 +28,5 @@ class ModifiedFile(object):
         self.filename = filename
     def __repr__(self):
         return self.filename
+    def __eq__(self, other):
+        return isinstance(other, ModifiedFile) and other.filename == self.filename

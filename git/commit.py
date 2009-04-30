@@ -47,10 +47,14 @@ class Commit(Ref):
         return [Commit(self.repo, sha.strip()) for sha in output.split()[1:]]
     def getChange(self):
         returned = []
-        for line in self.repo._getOutputAssertSuccess("git diff --raw %s" % self):
+        for line in self.repo._getOutputAssertSuccess("git show --pretty=format: --raw %s" % self).splitlines():
+            line = line.strip()
+            if not line:
+                continue
             _, _, _, _, _, filename = line.split()
             returned.append(ModifiedFile(filename))
         return returned
+    getChangedFiles = getChange
     ############################ Misc. Commit attributes ###########################
     def _getCommitField(self, field):
         return self.repo._executeGitCommandAssertSuccess("git log -1 --pretty=format:%s %s" % (field, self)).stdout.read().strip()

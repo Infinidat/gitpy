@@ -30,6 +30,10 @@ class GitException(Exception):
         return "%s: %s" % (type(self).__name__, self.msg)
     __str__ = __repr__
 
+class MergeConflict(GitException):
+    def __init__(self, msg='Merge Conflict'):
+        super(MergeConflict, self).__init__(msg=msg)
+
 class GitCommandFailedException(GitException):
     def __init__(self, command, popen):
         super(GitCommandFailedException, self).__init__(None)

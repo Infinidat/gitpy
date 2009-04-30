@@ -30,6 +30,7 @@ from . import branch
 from . import commit
 from . import config
 from . import exceptions
+from .files import ModifiedFile
 from . import ref
 from . import ref_container
 from . import remotes
@@ -123,6 +124,16 @@ class LocalRepository(Repository):
                 branch_name = branch_name[1:]
             returned.append(branch.LocalBranch(self, branch_name.strip()))
         return returned
+    def getCurrentBranch(self):
+        #todo: improve this method of obtaining current branch
+        for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
+            branch_name = branch_name.strip()
+            if not branch_name.startswith("*"):
+                continue
+            branch_name = branch_name[1:].strip()
+            if branch_name == '(no branch)':
+                return None
+            return self.getBranchByName(branch_name)
     def getRemotes(self):
         config_dict = self.config.getDict()
         returned = []
@@ -156,16 +167,18 @@ class LocalRepository(Repository):
         flags = ["--exclude-standard"] + list(flags)
         return [f.strip()
                 for f in self._getOutputAssertSuccess("git ls-files %s" % (" ".join(flags))).splitlines()]
+    def _getRawDiff(self, *flags):
+        flags = " ".join(str(f) for f in flags)
+        return [ModifiedFile(line.split()[-1]) for line in
+                self._getOutputAssertSuccess("git diff --raw %s" % flags).splitlines()]
     def getStagedFiles(self):
         if self.isInitialized():
-            return [line.split()[-1] for line in
-                    self._getOutputAssertSuccess("git diff --staged --raw").splitlines()]
-        else:
-            return self._getFiles('--cached')
+            return self._getRawDiff('--cached')
+        return self._getFiles()
     def getUnchangedFiles(self):
         return self._getFiles()
     def getChangedFiles(self):
-        return self._getFiles("--modified")
+        return self._getRawDiff()
     def getUntrackedFiles(self):
         return self._getFiles("--others")
     def isInitialized(self):
@@ -209,7 +222,7 @@ class LocalRepository(Repository):
     def createBranch(self, name, startingPoint=None):
         command = "git branch %s " % name
         if startingPoint is not None:
-            command += str(startingPoint)
+            command += self._normalizeRefName(startingPoint)
         self._executeGitCommandAssertSuccess(command)
         return branch.LocalBranch(self, name)
     def checkout(self, thing=None, targetBranch=None, files=()):
@@ -225,7 +238,11 @@ class LocalRepository(Repository):
         try:
             self._executeGitCommandAssertSuccess("git merge %s %s" % (self._normalizeRefName(what),
                                                   "--no-ff" if not allowFastForward else ""))
-        except exceptions.GitException:
+        except exceptions.GitCommandFailedException, e:
+            # git-merge tends to ignore the stderr rule...
+            output = e.stdout + e.stderr
+            if 'conflict' in output.lower():
+                raise exceptions.MergeConflict()
             raise
     def _reset(self, flag, thing):
         command = "git reset %s %s" % (

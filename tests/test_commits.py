@@ -24,7 +24,6 @@ class CommittedRepositoryTest(ModifiedRepositoryTest):
         self.assertNotEquals(self.repo.getHead(), previous)
         return returned
 
-
 class Committing(CommittedRepositoryTest):
     def testCommitFields(self):
         c = self.commitSomeChange()
@@ -33,6 +32,7 @@ class Committing(CommittedRepositoryTest):
         c.getDate()
         c.getSubject()
         c.getMessageBody()
+        self.assertNotEquals(c.getChange(), [])
 
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):
@@ -46,13 +46,21 @@ class TestReset(CommittedRepositoryTest):
             self.assertNotEquals(self.repo.getHead(), c)
             self.repo.resetHard(c)
             self.assertEquals(self.repo.getHead(), c)
+    def testMixedReset(self):
+        c = self.commitSomeChange()
+        modified_files = c.getChange()
+        for syntax in ("HEAD^", c.getParents()[0], "%s^" % (c,)):
+            self.repo.resetMixed(syntax)
+            self.assertEquals(self.repo.getChangedFiles(), modified_files)
+            self.repo.resetHard(c)
     def testSoftReset(self):
         c = self.commitSomeChange()
         modified_files = c.getChange()
         for syntax in ("HEAD^", c.getParents()[0], "%s^" % (c,)):
             self.repo.resetSoft(syntax)
-            self.assertEquals(self.repo.getChangedFiles(), modified_files)
+            self.assertEquals(self.repo.getStagedFiles(), modified_files)
             self.repo.resetHard(c)
+
 
 class TestMergeBase(CommittedRepositoryTest):
     def testMergeBase(self):

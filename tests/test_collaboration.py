@@ -32,7 +32,7 @@ class CollaborationTest(unittest.TestCase):
             print >> f, "hello there!"
         self.assertTrue(new_file_base_name in self.repo1.getUntrackedFiles())
         self.repo1.addAll()
-        self.assertTrue(new_file_base_name in self.repo1.getStagedFiles())
+        self.assertTrue(any(f.filename == new_file_base_name for f in self.repo1.getStagedFiles()))
         c = self.repo1.commit(message="add file")
         self.assertFalse(os.path.exists(os.path.join(self.repo2.path, new_file_base_name)))
         self.repo2.pull()
