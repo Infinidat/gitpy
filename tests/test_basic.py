@@ -55,5 +55,23 @@ class ModifiedRepositories(ModifiedRepositoryTest):
         self.assertTrue(self.repo.isWorkingDirectoryClean())
         self.assertEquals(self.repo.getStagedFiles(), [])
 
+class CleaningUntrackedFiles(ModifiedRepositoryTest):
+    def _clean(self):
+        self.repo.cleanUntrackedFiles()
+        self.failIf(self.repo.getUntrackedFiles())
+    def testCleaningUpUntrackedFiles(self):
+        with open(os.path.join(self.repo.path, "dirty_file"), "wb") as f:
+            print >> f, "data"
+        self.failUnless(self.repo.getUntrackedFiles())
+        self._clean()
+        #check directory cleanups
+        dirpath = os.path.join(self.repo.path, "unused_directory") 
+        os.mkdir(dirpath)
+        self._clean()
+        self.failIf(os.path.exists(dirpath))
+        
+        
+
+
 if __name__ == '__main__':
     unittest.main()

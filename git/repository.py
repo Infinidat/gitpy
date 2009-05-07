@@ -233,6 +233,13 @@ class LocalRepository(Repository):
         return self._reset("--hard", thing)
     def resetMixed(self, thing="HEAD"):
         return self._reset("--mixed", thing)
+    def _clean(self, flags):
+        self._executeGitCommandAssertSuccess("git clean -q " + flags)
+    def cleanIgnoredFiles(self):
+        """Cleans files that match the patterns in .gitignore"""
+        return self._clean("-f -X")
+    def cleanUntrackedFiles(self):
+        return self._clean("-f -d")
     ################################# collaboration ################################
     def addRemote(self, name, url):
         self._executeGitCommandAssertSuccess("git remote add %s %s" % (name, url))
