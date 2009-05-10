@@ -40,6 +40,8 @@ class Remote(ref_container.RefContainer):
         prefix = "%s/" % self.name
         returned = []
         for line in self.repo._getOutputAssertSuccess("git branch -r").splitlines():
+            if self.repo.getGitVersion() >= '1.6.3' and ' -> ' in line:
+                continue
             line = line.strip()
             if line.startswith(prefix):
                 returned.append(branch.RegisteredRemoteBranch(self.repo, self, line[len(prefix):]))

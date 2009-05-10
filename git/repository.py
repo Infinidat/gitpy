@@ -90,6 +90,7 @@ class LocalRepository(Repository):
         super(LocalRepository, self).__init__()
         self.path = path
         self.config = config.GitConfiguration(self)
+        self._version = None
     def __repr__(self):
         return "<Git Repository at %s>" % (self.path,)
     def _getWorkingDirectory(self):
@@ -98,6 +99,14 @@ class LocalRepository(Repository):
         return commit.Commit(self, self._getOutputAssertSuccess("git rev-parse %s" % name).strip())
     def _getCommitByPartialHash(self, sha):
         return self._getCommitByRefName(sha)
+    def getGitVersion(self):
+        if self._version is None:
+            version_output = self._getOutputAssertSuccess("git version")
+            version_match = re.match(r"git\s+version\s+(\S+)$", version_output, re.I)
+            if version_match is None:
+                raise exceptions.GitException("Cannot extract git version (unfamiliar output format %r?)" % version_output)
+            self._version = version_match.group(1)
+        return self._version
     ########################### Initializing a repository ##########################
     def init(self, bare=False):
         if not os.path.exists(self.path):
