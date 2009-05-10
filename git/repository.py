@@ -54,7 +54,7 @@ class Repository(ref_container.RefContainer):
         returned = self._executeGitCommand(command, **kwargs)
         assert returned.returncode is not None
         if returned.returncode != 0:
-            raise exceptions.GitCommandFailedException(command, returned)
+            raise exceptions.GitCommandFailedException(kwargs.get('cwd', self._getWorkingDirectory()), command, returned)
         return returned
     def _getOutputAssertSuccess(self, command, **kwargs):
         return self._executeGitCommandAssertSuccess(command, **kwargs).stdout.read()
@@ -148,7 +148,7 @@ class LocalRepository(Repository):
             a = a.getHead()
         if isinstance(b, ref.Ref):
             b = b.getHead()
-        returned = self._executeGitCommandAssertSuccess("git merge-base %s %s" % (a, b))
+        returned = self._executeGitCommand("git merge-base %s %s" % (a, b))
         if returned.returncode == 0:
             return commit.Commit(self, returned.stdout.read().strip())
         # make sure this is not a misc. error with git 

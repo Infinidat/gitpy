@@ -39,6 +39,8 @@ class Commit(Ref):
     def __eq__(self, other):
         if isinstance(other, Commit):
             other = str(other)
+        if other is None:
+            return False
         if not isinstance(other, basestring):
             raise TypeError("Comparing %s and %s" % (type(self), type(other)))
         return (self.hash == other.lower())

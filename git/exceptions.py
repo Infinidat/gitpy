@@ -22,6 +22,8 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import os
+
 class GitException(Exception):
     def __init__(self, msg):
         super(GitException, self).__init__()
@@ -35,13 +37,14 @@ class MergeConflict(GitException):
         super(MergeConflict, self).__init__(msg=msg)
 
 class GitCommandFailedException(GitException):
-    def __init__(self, command, popen):
+    def __init__(self, directory, command, popen):
         super(GitCommandFailedException, self).__init__(None)
         self.command = command
+        self.directory = os.path.abspath(directory)
         self.stderr = popen.stderr.read()
         self.stdout = popen.stdout.read()
         self.popen = popen
-        self.msg = "Command %s failed (%s):\n%s\n%s" % (command, popen.returncode,
+        self.msg = "Command %r failed in %s (%s):\n%s\n%s" % (command, self.directory, popen.returncode,
                               self.stderr, self.stdout)
 class NonexistentRefException(GitException):
     pass
