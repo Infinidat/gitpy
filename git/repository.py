@@ -243,9 +243,9 @@ class LocalRepository(Repository):
         if files:
             command += " -- %s" % " ".join(files)
         self._executeGitCommandAssertSuccess(command)
-    def merge(self, what, allowFastForward=True):
+    def mergeMultiple(self, srcs, allowFastForward=True):
         try:
-            self._executeGitCommandAssertSuccess("git merge %s %s" % (self._normalizeRefName(what),
+            self._executeGitCommandAssertSuccess("git merge %s %s" % (" ".join(self._normalizeRefName(src) for src in srcs),
                                                   "--no-ff" if not allowFastForward else ""))
         except exceptions.GitCommandFailedException, e:
             # git-merge tends to ignore the stderr rule...
@@ -253,6 +253,8 @@ class LocalRepository(Repository):
             if 'conflict' in output.lower():
                 raise exceptions.MergeConflict()
             raise
+    def merge(self, src, *args, **kwargs):
+        return self.mergeMultiple([src], *args, **kwargs)
     def _reset(self, flag, thing):
         command = "git reset %s %s" % (
             flag,
