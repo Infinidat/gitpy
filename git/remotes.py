@@ -32,7 +32,9 @@ class Remote(ref_container.RefContainer):
         self.name = name
         self.url = url
     def fetch(self):
-        self.repo._executeGitCommandAssertSuccess("git fetch %s" % self.name)        
+        self.repo._executeGitCommandAssertSuccess("git fetch %s" % self.name)
+    def prune(self):
+        self.repo._executeGitCommandAssertSuccess("git remote prune %s" % self.name)
     def __eq__(self, other):
         return (type(self) is type(other)) and (self.name == other.name)
     ###################### For compatibility with RefContainer #####################

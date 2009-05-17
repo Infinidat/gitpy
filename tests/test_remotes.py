@@ -19,6 +19,7 @@ class RemoteTest(CommittedRepositoryTest):
         self.assertEquals(remote.url, self.repo.path)
         self.assertFalse(new_repo.containsCommit(self.repo.getHead()))
         remote.fetch()
+        remote.prune()
         self.assertTrue(new_repo.containsCommit(self.repo.getHead()))
         branches = list(remote.getBranches())
         self.assertTrue(len(branches) > 0)
