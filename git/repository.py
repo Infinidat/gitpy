@@ -133,6 +133,14 @@ class LocalRepository(Repository):
                 branch_name = branch_name[1:]
             returned.append(branch.LocalBranch(self, branch_name.strip()))
         return returned
+    def _getCommits(self, specs):
+        for c in self._executeGitCommandAssertSuccess("git log --pretty=format:%%H %s" % specs).stdout:
+            yield commit.Commit(self, c.strip())
+    def getCommits(self, start=None, end="HEAD"):
+        spec = self._normalizeRefName(start or "")
+        spec += ".."
+        spec += self._normalizeRefName(end)
+        return list(self._getCommits(spec))
     def getCurrentBranch(self):
         #todo: improve this method of obtaining current branch
         for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
