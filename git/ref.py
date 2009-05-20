@@ -33,5 +33,7 @@ class Ref(object):
         return self.name
     def __eq__(self, ref):
         return (type(ref) is type(self) and ref.name == self.name)
+    def __ne__(self, ref):
+        return not (self == ref)
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.getNormalizedName())
