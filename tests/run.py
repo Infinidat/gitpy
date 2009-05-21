@@ -17,7 +17,7 @@ if __name__ == '__main__':
             filename = os.path.join(dirpath, filename)
             print filename, "..."
             sys.stdout.flush()
-            p = subprocess.Popen(filename, env=dict(PYTHONPATH=import_path), cwd="/tmp")
+            p = subprocess.Popen("python %s" % filename, shell=True, env=dict(PYTHONPATH=import_path), cwd="/tmp")
             p.wait()
             if p.returncode != 0:
                 print "\tFailed!"

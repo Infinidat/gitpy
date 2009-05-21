@@ -23,4 +23,5 @@ class RemoteRepositories(unittest.TestCase):
         self.assertEqual(set(branch.name for branch in branches),
                          set(['master']))
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
