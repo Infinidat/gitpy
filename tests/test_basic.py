@@ -70,8 +70,5 @@ class CleaningUntrackedFiles(ModifiedRepositoryTest):
         self._clean()
         self.failIf(os.path.exists(dirpath))
         
-        
-
-
 if __name__ == '__main__':
     unittest.main()

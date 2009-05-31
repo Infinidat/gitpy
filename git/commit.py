@@ -38,7 +38,7 @@ class Commit(Ref):
         return self.hash
     def __eq__(self, other):
         if isinstance(other, Commit):
-            other = str(other)
+            other = other.hash
         if other is None:
             return False
         if not isinstance(other, basestring):

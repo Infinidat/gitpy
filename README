@@ -1,0 +1,4 @@
+Testing
+=======
+Running the gitpy test suite requires nose (http://somethingaboutorange.com/mrl/projects/nose).
+After installing, just run 'nosetests' inside the project root.
