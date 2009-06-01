@@ -25,3 +25,4 @@
 from repository import RemoteRepository
 from repository import LocalRepository
 from repository import clone
+from repository import find_repository

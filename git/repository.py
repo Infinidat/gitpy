@@ -29,12 +29,17 @@ import subprocess
 from . import branch
 from . import commit
 from . import config
-from . import exceptions
 from .files import ModifiedFile
 from . import ref
 from . import ref_container
 from . import remotes
 from .utils import quote_for_shell
+
+#exceptions
+from .exceptions import CannotFindRepository
+from .exceptions import GitException
+from .exceptions import GitCommandFailedException
+from .exceptions import MergeConflict
 
 class Repository(ref_container.RefContainer):
     ############################# internal methods #############################
@@ -54,7 +59,7 @@ class Repository(ref_container.RefContainer):
         returned = self._executeGitCommand(command, **kwargs)
         assert returned.returncode is not None
         if returned.returncode != 0:
-            raise exceptions.GitCommandFailedException(kwargs.get('cwd', self._getWorkingDirectory()), command, returned)
+            raise GitCommandFailedException(kwargs.get('cwd', self._getWorkingDirectory()), command, returned)
         return returned
     def _getOutputAssertSuccess(self, command, **kwargs):
         return self._executeGitCommandAssertSuccess(command, **kwargs).stdout.read()
@@ -104,7 +109,7 @@ class LocalRepository(Repository):
             version_output = self._getOutputAssertSuccess("git version")
             version_match = re.match(r"git\s+version\s+(\S+)$", version_output, re.I)
             if version_match is None:
-                raise exceptions.GitException("Cannot extract git version (unfamiliar output format %r?)" % version_output)
+                raise GitException("Cannot extract git version (unfamiliar output format %r?)" % version_output)
             self._version = version_match.group(1)
         return self._version
     ########################### Initializing a repository ##########################
@@ -112,7 +117,7 @@ class LocalRepository(Repository):
         if not os.path.exists(self.path):
             os.mkdir(self.path)
         if not os.path.isdir(self.path):
-            raise exceptions.GitException("Cannot create repository in %s - "
+            raise GitException("Cannot create repository in %s - "
                                "not a directory" % self.path)
         self._executeGitCommandAssertSuccess("git init %s" % ("--bare" if bare else ""))
     def _asURL(self, repo):
@@ -175,7 +180,7 @@ class LocalRepository(Repository):
     def containsCommit(self, commit):
         try:
             self._executeGitCommandAssertSuccess("git log -1 %s" % (commit,))
-        except exceptions.GitException:
+        except GitException:
             return False
         return True
     def getHead(self):
@@ -202,7 +207,7 @@ class LocalRepository(Repository):
         try:
             self.getHead()
             return True
-        except exceptions.GitException:
+        except GitException:
             return False
     def isValid(self):
         return os.path.isdir(os.path.join(self.path, ".git")) or \
@@ -255,11 +260,11 @@ class LocalRepository(Repository):
         try:
             self._executeGitCommandAssertSuccess("git merge %s %s" % (" ".join(self._normalizeRefName(src) for src in srcs),
                                                   "--no-ff" if not allowFastForward else ""))
-        except exceptions.GitCommandFailedException, e:
+        except GitCommandFailedException, e:
             # git-merge tends to ignore the stderr rule...
             output = e.stdout + e.stderr
             if 'conflict' in output.lower():
-                raise exceptions.MergeConflict()
+                raise MergeConflict()
             raise
     def merge(self, src, *args, **kwargs):
         return self.mergeMultiple([src], *args, **kwargs)
@@ -342,3 +347,16 @@ def clone(source, location):
     returned = LocalRepository(location)
     returned.clone(source)
     return returned
+
+def find_repository():
+    orig_path = path = os.path.realpath('.')
+    drive, path = os.path.splitdrive(path)
+    while path:
+        current_path = os.path.join(drive, path)
+        current_repo = LocalRepository(current_path)
+        if current_repo.isValid():
+            return current_repo
+        path, path_tail = os.path.split(current_path)
+        if not path_tail:
+            raise CannotFindRepository("Cannot find repository for %s" % (orig_path,))
+        

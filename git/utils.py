@@ -35,7 +35,7 @@ def quote_for_shell(s):
     if " " in returned:
         returned = '"%s"' % returned
     return returned
-    
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

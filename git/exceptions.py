@@ -32,6 +32,9 @@ class GitException(Exception):
         return "%s: %s" % (type(self).__name__, self.msg)
     __str__ = __repr__
 
+class CannotFindRepository(GitException):
+    pass
+
 class MergeConflict(GitException):
     def __init__(self, msg='Merge Conflict'):
         super(MergeConflict, self).__init__(msg=msg)

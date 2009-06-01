@@ -5,6 +5,7 @@ import commands
 from utils import get_temporary_location
 from utils import delete_repository
 from git import LocalRepository
+from git import find_repository
 from git.exceptions import GitException
 
 class EmptyRepositoryTest(unittest.TestCase):
@@ -69,6 +70,18 @@ class CleaningUntrackedFiles(ModifiedRepositoryTest):
         os.mkdir(dirpath)
         self._clean()
         self.failIf(os.path.exists(dirpath))
-        
+
+class TestAPI(ModifiedRepositoryTest):
+    def test_find_repository(self):
+        prev_path = os.path.realpath(".")
+        subpath = os.path.join(self.repo.path, "a", "b", "c")
+        os.makedirs(subpath)
+        os.chdir(subpath)
+        try:
+            repo = find_repository()
+        finally:
+            os.chdir(prev_path)
+        self.failUnless(repo.path == self.repo.path)
+
 if __name__ == '__main__':
     unittest.main()
