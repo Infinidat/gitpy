@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from distutils.core import setup
-setup(name="pygit",
+setup(name="gitpy",
       description="Python bindings for the Git source control system",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
