@@ -20,6 +20,11 @@ class TestBranching(CommittedRepositoryTest):
         self.assertEquals(self.repo.getCommits(branch, self.repo.getCurrentBranch()), [new_commit])
         self.assertNotEquals(self.repo.getHead(), branch.getHead())
         return branch
+    def testNewCommits(self):
+        branch = self.testBranching()
+        new_commit = self.commitSomeChange()
+        new_commits = self.repo.getCurrentBranch().getNewCommits(branch)
+        self.assertEquals(new_commits, [new_commit])
     def testMerging1(self):
         branch = self.testBranchingAndCommitting()
         prev_head = self.repo.getHead()

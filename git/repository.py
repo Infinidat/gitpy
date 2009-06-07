@@ -100,6 +100,8 @@ class LocalRepository(Repository):
         return "<Git Repository at %s>" % (self.path,)
     def _getWorkingDirectory(self):
         return self.path
+    def _getCommitByHash(self, sha):
+        return commit.Commit(self, sha)
     def _getCommitByRefName(self, name):
         return commit.Commit(self, self._getOutputAssertSuccess("git rev-parse %s" % name).strip())
     def _getCommitByPartialHash(self, sha):
