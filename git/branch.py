@@ -47,3 +47,5 @@ class RegisteredRemoteBranch(RemoteBranch):
         self.repo.push(self.remote, fromBranch="", toBranch=self, force=True)
     def getNormalizedName(self):
         return "%s/%s" % (self.remote.name, self.name)
+    def __repr__(self):
+        return "<branch %s on remote %r>" % (self.name, self.remote.name)
