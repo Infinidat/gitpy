@@ -37,7 +37,10 @@ class Commit(Ref):
     def __repr__(self):
         return self.hash
     def __eq__(self, other):
-        if isinstance(other, Commit):
+        if not isinstance(other, Commit):
+            if isinstance(other, Ref):
+                other = other.getHead().hash
+        else:
             other = other.hash
         if other is None:
             return False
@@ -70,12 +73,3 @@ class Commit(Ref):
         return self._getCommitField("%s")
     def getMessageBody(self):
         return self._getCommitField("%b")
-    ################################ Advance queries ###############################
-    def getMergeBase(self, other):
-        return self.repo.getMergeBase(self, other)
-    __and__ = getMergeBase
-    def contains(self, other):
-        if isinstance(other, Ref):
-            other = other.getHead()
-        return self.getMergeBase(other) == other
-    __contains__ = contains

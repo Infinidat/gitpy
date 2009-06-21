@@ -49,3 +49,11 @@ class Ref(object):
         return not (self == ref)
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.getNormalizedName())
+    ################################## Containment #################################
+    def getMergeBase(self, other):
+        return self.repo.getMergeBase(self, other)
+    __and__ = getMergeBase
+    def contains(self, other):
+        return self.getMergeBase(other) == other
+    __contains__ = contains
+
