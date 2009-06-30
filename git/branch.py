@@ -32,6 +32,12 @@ class Branch(Ref):
 class LocalBranch(Branch):
     def delete(self):
         self.repo._executeGitCommandAssertSuccess("git branch -D %s" % (self.name,))
+
+class LocalBranchAlias(LocalBranch):
+    def __init__(self, repository, name, dest):
+        super(LocalBranchAlias, self).__init__(repository, name)
+        self.dest = dest
+        
 class RemoteBranch(Branch):
     pass
 class RegisteredRemoteBranch(RemoteBranch):

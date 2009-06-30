@@ -41,6 +41,8 @@ from .exceptions import GitException
 from .exceptions import GitCommandFailedException
 from .exceptions import MergeConflict
 
+BRANCH_ALIAS_MARKER = ' -> '
+
 class Repository(ref_container.RefContainer):
     ############################# internal methods #############################
     def _getWorkingDirectory(self):
@@ -135,10 +137,15 @@ class LocalRepository(Repository):
     ########################### Querying repository refs ###########################
     def getBranches(self):
         returned = []
-        for branch_name in self._executeGitCommandAssertSuccess("git branch").stdout:
-            if branch_name.startswith("*"):
-                branch_name = branch_name[1:]
-            returned.append(branch.LocalBranch(self, branch_name.strip()))
+        for git_branch_line in self._executeGitCommandAssertSuccess("git branch").stdout:
+            if git_branch_line.startswith("*"):
+                git_branch_line = git_branch_line[1:]
+            git_branch_line = git_branch_line.strip()
+            if BRANCH_ALIAS_MARKER in git_branch_line:
+                alias_name, aliased = git_branch_line.split(BRANCH_ALIAS_MARKER)
+                returned.append(branch.LocalBranchAlias(self, alias_name, aliased))
+            else:
+                returned.append(branch.LocalBranch(self, git_branch_line))
         return returned
     def _getCommits(self, specs, includeMerges):
         command = "git log --pretty=format:%%H %s" % specs
