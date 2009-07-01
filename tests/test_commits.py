@@ -33,6 +33,9 @@ class Committing(CommittedRepositoryTest):
         c.getSubject()
         c.getMessageBody()
         self.assertNotEquals(c.getChange(), [])
+    def testCommittingWithEmptyMessage(self):
+        c = self.repo.commit(message="empty", allowEmpty=True)
+        
 
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):

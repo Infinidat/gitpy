@@ -249,8 +249,11 @@ class LocalRepository(Repository):
             if match:
                 return commit.Commit(self, match.group(1))
         return None
-    def commit(self, message):
-        output = self._getOutputAssertSuccess("git commit -m %s" % quote_for_shell(message))
+    def commit(self, message, allowEmpty=False):
+        command = "git commit -m %s" % quote_for_shell(message)
+        if allowEmpty:
+            command += " --allow-empty"
+        output = self._getOutputAssertSuccess(command)
         return self._deduceNewCommitFromCommitOutput(output)
     ################################ Changing state ################################
     def createBranch(self, name, startingPoint=None):
