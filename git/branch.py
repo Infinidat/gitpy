@@ -30,8 +30,8 @@ class Branch(Ref):
     def __repr__(self):
         return "<branch %s>" % (self.name,)
 class LocalBranch(Branch):
-    def delete(self):
-        self.repo._executeGitCommandAssertSuccess("git branch -D %s" % (self.name,))
+    def delete(self, force=True):
+        self.repo._executeGitCommandAssertSuccess("git branch -%s %s" % ("D" if force else "d", self.name,))
 
 class LocalBranchAlias(LocalBranch):
     def __init__(self, repository, name, dest):
