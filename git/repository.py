@@ -337,9 +337,9 @@ class LocalRepository(Repository):
 
         if refspec and not remote:
             remote = "origin"
-        self._executeGitCommandAssertSuccess("git push %s %s" % (
-            self._normalizeRefName(remote) if remote is not None else "",
-            refspec))
+        command = "git push %s %s" % (self._normalizeRefName(remote) if remote is not None else "",
+                                      refspec)
+        self._executeGitCommandAssertSuccess(command)
     def rebase(self, src):
         self._executeGitCommandAssertSuccess("git rebase %s" % self._normalizeRefName(src))
     #################################### Stashes ###################################
