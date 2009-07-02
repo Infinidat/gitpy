@@ -337,8 +337,15 @@ class LocalRepository(Repository):
 
         if refspec and not remote:
             remote = "origin"
-        command = "git push %s %s" % (self._normalizeRefName(remote) if remote is not None else "",
-                                      refspec)
+        if isinstance(remote, remotes.Remote):
+            remote = remote.name
+        elif isinstance(remote, RemoteRepository):
+            remote = remote.url
+        elif isinstance(remote, LocalRepository):
+            remote = remote.path
+        if remote is not None and not isinstance(remote, basestring):
+            raise TypeError("Invalid type for 'remote' parameter: %s" % (type(remote),))
+        command = "git push %s %s" % (remote if remote is not None else "", refspec)
         self._executeGitCommandAssertSuccess(command)
     def rebase(self, src):
         self._executeGitCommandAssertSuccess("git rebase %s" % self._normalizeRefName(src))
