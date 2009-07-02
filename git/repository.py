@@ -25,6 +25,7 @@
 import re
 import os
 import subprocess
+import sys
 
 from . import branch
 from . import commit
@@ -45,11 +46,20 @@ BRANCH_ALIAS_MARKER = ' -> '
 
 class Repository(ref_container.RefContainer):
     ############################# internal methods #############################
+    _loggingEnabled = False
     def _getWorkingDirectory(self):
         return '.'
+    def _logGitCommand(self, command, cwd):
+        if self._loggingEnabled:
+            print >> sys.stderr, ">>", command
+    def enableLogging(self):
+        self._loggingEnabled = True
+    def disableLogging(self):
+        self._loggingEnabled = False
     def _executeGitCommand(self, command, cwd=None):
         if cwd is None:
             cwd = self._getWorkingDirectory()
+        self._logGitCommand(command, cwd)
         returned = subprocess.Popen(command,
                                     shell=True,
                                     cwd=cwd,
