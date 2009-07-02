@@ -335,7 +335,7 @@ class LocalRepository(Repository):
         #build push arguments
         refspec = self._getRefspec(toBranch=toBranch, fromBranch=fromBranch, force=force)
 
-        if refspec:
+        if refspec and not remote:
             remote = "origin"
         self._executeGitCommandAssertSuccess("git push %s %s" % (
             self._normalizeRefName(remote) if remote is not None else "",
