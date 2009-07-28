@@ -22,6 +22,24 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+class CommandString(object):
+    """
+    >>> CommandString('a', 'b', 'c')
+    a b c
+    >>> CommandString('a', 'b', None, 'c')
+    a b c
+    """
+    def __init__(self, *args):
+        self.command = ""
+        for arg in args:
+            if not arg:
+                continue
+            if self.command:
+                self.command += " "
+            self.command += str(arg)
+    def __repr__(self):
+        return self.command
+
 def quote_for_shell(s):
     """
     >>> print quote_for_shell('this is a " string')
