@@ -35,6 +35,7 @@ from . import ref
 from . import ref_container
 from . import remotes
 from .utils import quote_for_shell
+from .utils import CommandString as CMD
 
 #exceptions
 from .exceptions import CannotFindRepository
@@ -282,11 +283,13 @@ class LocalRepository(Repository):
         if files:
             command += " -- %s" % " ".join(files)
         self._executeGitCommandAssertSuccess(command)
-    def mergeMultiple(self, srcs, allowFastForward=True, log=False):
+    def mergeMultiple(self, srcs, allowFastForward=True, log=False, message=None):
         try:
-            self._executeGitCommandAssertSuccess("git merge %s %s %s" % (" ".join(self._normalizeRefName(src) for src in srcs),
-                                                                         "--no-ff" if not allowFastForward else "",
-                                                                         "--log" if log else ""))
+            self._executeGitCommandAssertSuccess(CMD("git merge",
+                                                     " ".join(self._normalizeRefName(src) for src in srcs),
+                                                     "--no-ff" if not allowFastForward else None,
+                                                     "--log" if log else None,
+                                                     ("-m \"%s\"" % message) if message is not None else None))
         except GitCommandFailedException, e:
             # git-merge tends to ignore the stderr rule...
             output = e.stdout + e.stderr
