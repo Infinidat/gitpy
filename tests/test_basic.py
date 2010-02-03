@@ -24,6 +24,10 @@ class BasicRepositories(EmptyRepositoryTest):
         self.assertTrue(self.repo.isValid())
         self.failUnless(os.path.isdir(self.dirname))
         self.failUnless(os.path.isdir(os.path.join(self.dirname, ".git")))
+    def testConfiguration(self):
+        self.repo.init()
+        self.repo.config.setParameter('a.b.c', 2)
+        self.assertEquals(self.repo.config.getParameter('a.b.c'), '2')
     def testRepositoryInitWhenExists(self):
         os.mkdir(self.dirname)
         self.repo.init()

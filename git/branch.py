@@ -22,6 +22,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import re
 from ref import Ref
 
 class Branch(Ref):
@@ -32,7 +33,25 @@ class Branch(Ref):
 class LocalBranch(Branch):
     def delete(self, force=True):
         self.repo._executeGitCommandAssertSuccess("git branch -%s %s" % ("D" if force else "d", self.name,))
-
+    def setRemoteBranch(self, branch):
+        if branch is None:
+            self.repo.config.unsetParameter('branch.%s.remote' % self.name)
+            self.repo.config.unsetParameter('branch.%s.merge' % self.name)
+            return
+        elif not isinstance(branch, RegisteredRemoteBranch):
+            raise ValueError("Remote branch must be a remote branch object (got %r)" % (branch,))
+        self.repo.config.setParameter('branch.%s.remote' % self.name, branch.remote.name)
+        self.repo.config.setParameter('branch.%s.merge' % self.name, 'refs/heads/%s' % branch.name)
+    def getRemoteBranch(self):
+        remote = self.repo.config.getParameter('branch.%s.remote' % self.name)
+        if remote is None:
+            return None
+        remote = self.repo.getRemoteByName(remote)
+        merge = self.repo.config.getParameter('branch.%s.merge' % self.name)
+        merge = re.sub('^refs/heads/', '', merge)
+        remote_branch = remote.getBranchByName(merge)
+        return remote_branch
+        
 class LocalBranchAlias(LocalBranch):
     def __init__(self, repository, name, dest):
         super(LocalBranchAlias, self).__init__(repository, name)

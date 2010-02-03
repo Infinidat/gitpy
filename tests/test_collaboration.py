@@ -25,6 +25,15 @@ class CollaborationTest(unittest.TestCase):
         utils.delete_repository(self.repo1)
         utils.delete_repository(self.repo2)
 
+    def testRemotePushBranches(self):
+        b = self.repo2.createBranch("branch")
+        self.repo1.createBranch('remote_branch')
+        self.repo2.fetch()
+        remote_branch = self.repo2.getRemoteByName('origin').getBranchByName('remote_branch')
+        b.setRemoteBranch(remote_branch)
+        self.assertEquals(b.getRemoteBranch(), remote_branch)
+        b.setRemoteBranch(None)
+        self.assertEquals(b.getRemoteBranch(), None)
     def testCollaboration(self):
         new_file_base_name = "new_file.txt"
         new_filename = os.path.join(self.repo1.path, new_file_base_name)
