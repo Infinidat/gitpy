@@ -22,6 +22,8 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from .exceptions import GitCommandFailedException
+
 class GitConfiguration(object):
     def __init__(self, repo):
         super(GitConfiguration, self).__init__()
@@ -29,7 +31,11 @@ class GitConfiguration(object):
     def setParameter(self, path, value, local=True):
         self.repo._executeGitCommandAssertSuccess("git config %s \"%s\" \"%s\"" % ("" if local else "--global", path, value))
     def unsetParameter(self, path, local=True):
-        self.repo._executeGitCommandAssertSuccess("git config --unset %s \"%s\"" % ("" if local else "--global", path))
+        try:
+            self.repo._executeGitCommandAssertSuccess("git config --unset %s \"%s\"" % ("" if local else "--global", path))
+        except GitCommandFailedException:
+            if self.getParameter(path) is not None:
+                raise
     def getParameter(self, path):
         return self.getDict().get(path, None)
     def getDict(self):

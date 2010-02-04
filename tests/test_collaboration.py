@@ -34,6 +34,8 @@ class CollaborationTest(unittest.TestCase):
         self.assertEquals(b.getRemoteBranch(), remote_branch)
         b.setRemoteBranch(None)
         self.assertEquals(b.getRemoteBranch(), None)
+        # try setting to None multiple times
+        b.setRemoteBranch(None)
     def testCollaboration(self):
         new_file_base_name = "new_file.txt"
         new_filename = os.path.join(self.repo1.path, new_file_base_name)
