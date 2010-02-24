@@ -56,7 +56,7 @@ class Commit(Ref):
             line = line.strip()
             if not line:
                 continue
-            _, _, _, _, _, filename = line.split()
+            filename = line.split()[-1]
             returned.append(ModifiedFile(filename))
         return returned
     getChangedFiles = getChange
