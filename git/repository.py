@@ -376,8 +376,6 @@ class LocalRepository(Repository):
             command += " %s" % arg
         self._executeGitCommandAssertSuccess(command)
     ################################# Configuration ################################
-    def getConfig(self):
-        return dict(s.split("=",1) for s in self._getOutputAssertSuccess("git config -l"))
 
 ################################### Shortcuts ##################################
 def clone(source, location):
