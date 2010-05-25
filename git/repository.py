@@ -28,6 +28,7 @@ import subprocess
 import sys
 
 from . import branch
+from . import tag
 from . import commit
 from . import config
 from .files import ModifiedFile
@@ -103,6 +104,8 @@ class RemoteRepository(Repository):
         return [cls(self, ref) for ref in self._getRefs(prefix)]
     def getBranches(self):
         return self._getRefsAsClass('refs/heads/', branch.RemoteBranch)
+    def getTags(self):
+        return self._getRefsAsClass('refs/tags/', tag.RemoteTag)
 ############################## local repositories ##############################
 class LocalRepository(Repository):
     def __init__(self, path):
@@ -146,7 +149,7 @@ class LocalRepository(Repository):
         return repo
     def clone(self, repo):
         self._executeGitCommandAssertSuccess("git clone %s %s" % (self._asURL(repo), self.path), cwd=".")
-    ########################### Querying repository refs ###########################
+    ########################### Querying repository refs ###########################        
     def getBranches(self):
         returned = []
         for git_branch_line in self._executeGitCommandAssertSuccess("git branch").stdout:
@@ -158,6 +161,11 @@ class LocalRepository(Repository):
                 returned.append(branch.LocalBranchAlias(self, alias_name, aliased))
             else:
                 returned.append(branch.LocalBranch(self, git_branch_line))
+        return returned
+    def getTags(self):
+        returned = []
+        for git_tag_line in self._executeGitCommandAssertSuccess("git tag").stdout:
+            returned.append(tag.LocalTag(self, git_tag_line.strip()))
         return returned
     def _getCommits(self, specs, includeMerges):
         command = "git log --pretty=format:%%H %s" % specs
@@ -268,12 +276,16 @@ class LocalRepository(Repository):
         output = self._getOutputAssertSuccess(command)
         return self._deduceNewCommitFromCommitOutput(output)
     ################################ Changing state ################################
-    def createBranch(self, name, startingPoint=None):
-        command = "git branch %s " % name
+    def _createBranchOrTag(self, objname, name, startingPoint, returned_class):
+        command = "git %s %s " % (objname, name)
         if startingPoint is not None:
             command += self._normalizeRefName(startingPoint)
         self._executeGitCommandAssertSuccess(command)
-        return branch.LocalBranch(self, name)
+        return returned_class(self, name)
+    def createBranch(self, name, startingPoint=None):
+        return self._createBranchOrTag('branch', name, startingPoint, branch.LocalBranch)
+    def createTag(self, name, startingPoint=None):
+        return self._createBranchOrTag('tag', name, startingPoint, tag.LocalTag)
     def checkout(self, thing=None, targetBranch=None, files=()):
         if thing is None:
             thing = ""
