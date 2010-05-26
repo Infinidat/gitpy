@@ -43,6 +43,7 @@ from .exceptions import CannotFindRepository
 from .exceptions import GitException
 from .exceptions import GitCommandFailedException
 from .exceptions import MergeConflict
+from .exceptions import NonexistentRefException
 
 BRANCH_ALIAS_MARKER = ' -> '
 
@@ -94,14 +95,22 @@ class RemoteRepository(Repository):
     def __init__(self, url):
         super(RemoteRepository, self).__init__()
         self.url = url
-    def _getRefs(self, prefix):
+    def _getRefs(self, prefix=''):
         output = self._executeGitCommandAssertSuccess("git ls-remote %s" % (self.url,))
         for output_line in output.stdout:
             commit, refname = output_line.split()
             if refname.startswith(prefix):
-                yield refname[len(prefix):]
+                yield refname[len(prefix):], commit.strip()
     def _getRefsAsClass(self, prefix, cls):
-        return [cls(self, ref) for ref in self._getRefs(prefix)]
+        return [cls(self, ref) for ref, _ in self._getRefs(prefix)]
+    def _getCommitByRefName(self, refname):
+        sha_by_ref = dict(self._getRefs())
+        for prefix in 'refs/tags/', 'refs/heads/':
+            sha = sha_by_ref.get(prefix + refname, None)
+            if sha is not None:
+                return commit.Commit(self, sha)
+        raise NonexistentRefException("Cannot find ref name %r in %s" % (refname, self))
+        
     def getBranches(self):
         return self._getRefsAsClass('refs/heads/', branch.RemoteBranch)
     def getTags(self):
