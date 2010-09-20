@@ -64,13 +64,19 @@ class Repository(ref_container.RefContainer):
             cwd = self._getWorkingDirectory()
         command = str(command)
         self._logGitCommand(command, cwd)
+        environment = self._getEnvironment()
         returned = subprocess.Popen(command,
                                     shell=True,
                                     cwd=cwd,
+                                    env=environment,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
         returned.wait()
         return returned
+    def _getEnvironment(self):
+        if 'GIT_SSH' not in os.environ:
+            return dict(GIT_SSH='ssh -q')
+        return None
     def _executeGitCommandAssertSuccess(self, command, **kwargs):
         returned = self._executeGitCommand(command, **kwargs)
         assert returned.returncode is not None
