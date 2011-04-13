@@ -262,8 +262,13 @@ class LocalRepository(Repository):
     ################################ Staging content ###############################
     def add(self, path):
         self._executeGitCommandAssertSuccess("git add %s" % quote_for_shell(path))
-    def delete(self, path):
-        self._executeGitCommandAssertSuccess("git rm %s" % quote_for_shell(path))
+    def delete(self, path, recursive=False, force=False):
+        flags = ""
+        if recursive:
+            flags += "-r "
+        if force:
+            flags += "-f "
+        self._executeGitCommandAssertSuccess("git rm %s%s" % (flags, quote_for_shell(path)))
     def addAll(self):
         return self.add('.')
     ################################## Committing ##################################
