@@ -215,7 +215,7 @@ class LocalRepository(Repository):
         returned = self._executeGitCommand("git merge-base %s %s" % (a, b))
         if returned.returncode == 0:
             return commit.Commit(self, returned.stdout.read().strip())
-        # make sure this is not a misc. error with git 
+        # make sure this is not a misc. error with git
         unused = self.getHead()
         return None
     ################################ Querying Status ###############################
@@ -301,8 +301,11 @@ class LocalRepository(Repository):
             if match:
                 return commit.Commit(self, match.group(1))
         return None
-    def commit(self, message, allowEmpty=False):
-        command = "git commit -m %s" % quote_for_shell(message)
+    def commit(self, message, allowEmpty=False, commitAll=False):
+        args = ''
+        if commitAll:
+            args = args + '--all'
+        command = "git commit %s -m %s" % ( args, quote_for_shell(message) )
         if allowEmpty:
             command += " --allow-empty"
         output = self._getOutputAssertSuccess(command)
@@ -438,4 +441,4 @@ def find_repository():
         path, path_tail = os.path.split(current_path)
         if not path_tail:
             raise CannotFindRepository("Cannot find repository for %s" % (orig_path,))
-        
+

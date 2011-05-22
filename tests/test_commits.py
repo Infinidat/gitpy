@@ -35,7 +35,19 @@ class Committing(CommittedRepositoryTest):
         self.assertNotEquals(c.getChange(), [])
     def testCommittingWithEmptyMessage(self):
         c = self.repo.commit(message="empty", allowEmpty=True)
-        
+    def testCommitAll(self):
+        filename = self.makeSomeChange()
+        full_filename = os.path.join(self.repo.path, filename)
+        prev_contents = open(full_filename, "rb").read()
+        self.assertEquals(len(self.repo.getChangedFiles()), 1)
+        self.assertEquals(self.repo.getChangedFiles()[0].filename, filename)
+        previous = self.repo.getHead()
+        self.repo.commit("message", commitAll=True)
+        new_commit = self.repo.getHead()
+        self.assertNotEquals(new_commit, previous)
+        self.assertEquals(self.repo.getChangedFiles(), [])
+        self.assertEquals(self.repo.getStagedFiles(), [])
+        self.assertEquals(open(full_filename, "rb").read(), prev_contents)
 
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):
