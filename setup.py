@@ -28,5 +28,5 @@ setup(name="gitpy",
       description="Python bindings for the Git source control system",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
-      version="0.5",
+      version="0.6.0",
       packages=["git"])
