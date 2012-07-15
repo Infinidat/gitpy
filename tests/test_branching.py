@@ -1,8 +1,8 @@
 #! /usr/bin/python
 import os
 import unittest
-import git
-from git.branch import LocalBranchAlias
+import gitpy
+from gitpy.branch import LocalBranchAlias
 from test_commits import CommittedRepositoryTest
 
 class TestBranching(CommittedRepositoryTest):

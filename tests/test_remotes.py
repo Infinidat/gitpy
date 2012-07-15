@@ -2,7 +2,7 @@
 import os
 import unittest
 from test_commits import CommittedRepositoryTest
-from git import LocalRepository
+from gitpy import LocalRepository
 import utils
 
 class RemoteTest(CommittedRepositoryTest):

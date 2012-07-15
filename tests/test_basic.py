@@ -4,9 +4,9 @@ import os
 import commands
 from utils import get_temporary_location
 from utils import delete_repository
-from git import LocalRepository
-from git import find_repository
-from git.exceptions import GitException
+from gitpy import LocalRepository
+from gitpy import find_repository
+from gitpy.exceptions import GitException
 
 class EmptyRepositoryTest(unittest.TestCase):
     def setUp(self):

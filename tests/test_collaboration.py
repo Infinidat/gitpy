@@ -2,9 +2,9 @@
 import os
 import unittest
 import utils
-from git import LocalRepository
-from git import RemoteRepository
-from git.exceptions import NonexistentRefException
+from gitpy import LocalRepository
+from gitpy import RemoteRepository
+from gitpy.exceptions import NonexistentRefException
 
 class CollaborationTest(unittest.TestCase):
     def setUp(self):

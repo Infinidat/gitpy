@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import unittest
-import git
-from git.tag import LocalTag, RemoteTag
+import gitpy
+from gitpy.tag import LocalTag, RemoteTag
 from test_commits import CommittedRepositoryTest
 
 class TestTags(CommittedRepositoryTest):
@@ -11,7 +11,7 @@ class TestTags(CommittedRepositoryTest):
             self.assertTrue(isinstance(tag, tag_class))
             self.assertEquals(tag.name, name)
     def testLocalTags(self):
-        remote_repo = git.RemoteRepository(self.repo.path)
+        remote_repo = gitpy.RemoteRepository(self.repo.path)
         self.assertEquals(self.repo.getTags(), [])
         self.assertEquals(remote_repo.getTags(), [])
         self.repo.createTag('bla')

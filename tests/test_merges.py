@@ -3,7 +3,7 @@ import unittest
 import os
 import random
 from test_commits import CommittedRepositoryTest
-from git.exceptions import MergeConflict
+from gitpy.exceptions import MergeConflict
 
 class TestBasicConflicts(CommittedRepositoryTest):
     def _changeFile(self, filename):

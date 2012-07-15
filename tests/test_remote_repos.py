@@ -3,8 +3,8 @@ import unittest
 import os
 import commands
 from utils import get_temporary_location
-from git import RemoteRepository
-from git.exceptions import NonexistentRefException
+from gitpy import RemoteRepository
+from gitpy.exceptions import NonexistentRefException
 
 class RemoteRepositories(unittest.TestCase):
     def setUp(self):

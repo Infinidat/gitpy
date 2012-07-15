@@ -1,8 +1,8 @@
 #! /usr/bin/python
 import unittest
 import utils
-from git import LocalRepository
-from git import clone
+from gitpy import LocalRepository
+from gitpy import clone
 
 class TestWorkflows(unittest.TestCase):
     def setUp(self):

@@ -24,9 +24,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from setuptools import setup
-setup(name="gitpy",
+setup(name="git-py",
       description="Python bindings for the Git source control system",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
-      version="0.6.0",
-      packages=["git"])
+      version="1.0.0",
+      packages=["gitpy"])
