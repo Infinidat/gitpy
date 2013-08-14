@@ -1,4 +1,1 @@
-Testing
-=======
-Running the gitpy test suite requires nose (http://somethingaboutorange.com/mrl/projects/nose).
-After installing, just run 'nosetests' inside the project root.
+NOTE: gitpy is no longer actively maintained. I strongly recommend GitPython (https://github.com/gitpython-developers/GitPython), which has a pure-python object access layer, and implements streaming of large objects more efficiently.
