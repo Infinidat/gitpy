@@ -48,6 +48,10 @@ class Committing(CommittedRepositoryTest):
         self.assertEquals(self.repo.getChangedFiles(), [])
         self.assertEquals(self.repo.getStagedFiles(), [])
         self.assertEquals(open(full_filename, "rb").read(), prev_contents)
+    def testCommitLongMessage(self):
+        message = "The quick brown fox jumps over the lazy dog\n"
+        c = self.repo.commit(message="%s\n%s" % (message, message*2048), allowEmpty=True)
+        c.getMessageBody()
 
 class TestReset(CommittedRepositoryTest):
     def testHardReset(self):

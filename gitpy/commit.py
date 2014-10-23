@@ -62,7 +62,7 @@ class Commit(Ref):
     getChangedFiles = getChange
     ############################ Misc. Commit attributes ###########################
     def _getCommitField(self, field):
-        return self.repo._executeGitCommandAssertSuccess("git log -1 --pretty=format:%s %s" % (field, self)).stdout.read().strip()
+        return self.repo._executeGitCommandAssertSuccess("git --no-pager log -1 --pretty=format:%s %s" % (field, self)).stdout.read().strip()
     def getAuthorName(self):
         return self._getCommitField("%an")
     def getAuthorEmail(self):

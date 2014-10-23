@@ -23,6 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from collections import Sequence
+from infi.execute import execute
+from StringIO import StringIO
 import re
 import os
 import subprocess
@@ -65,12 +67,12 @@ class Repository(ref_container.RefContainer):
             cwd = self._getWorkingDirectory()
         command = str(command)
         self._logGitCommand(command, cwd)
-        returned = subprocess.Popen(command,
-                                    shell=True,
-                                    cwd=cwd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+        returned = execute(command, shell=True, cwd=cwd)
         returned.wait()
+        # API compatability
+        returned.returncode = returned.get_returncode()
+        returned.stdout = StringIO(returned.get_stdout())
+        returned.stderr = StringIO(returned.get_stderr())
         return returned
     def _executeGitCommandAssertSuccess(self, command, **kwargs):
         returned = self._executeGitCommand(command, **kwargs)
