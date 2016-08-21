@@ -29,5 +29,5 @@ setup(name="git-py",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
       version="1.0.1",
-      install_requires=["infi.execute>=0.1"],
+      install_requires=["infi.execute>=0.1", "six"],
       packages=["gitpy"])

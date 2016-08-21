@@ -22,16 +22,16 @@ def create_repo():
     for i in range(10):
         filename = "file_%s.txt" % i
         full_filename = os.path.join(returned.path, filename)
-        with open(full_filename, "wb") as f:
-            print >>f, "initial content"
+        with open(full_filename, "w") as f:
+            f.write("initial content\n")
         returned.add(filename)
     returned.commit(message="initial")
     return returned
 
 def commit_change(repo):
     filename = random.choice(repo.getUnchangedFiles())
-    with open(os.path.join(repo.path, filename), "ab") as f:
-        print >>f, "Change at", time.asctime()
+    with open(os.path.join(repo.path, filename), "a") as f:
+        f.write("Change at %s" % (time.asctime(), ))
     repo.add(filename)
     return repo.commit(message="auto change at %s" % time.asctime())
 

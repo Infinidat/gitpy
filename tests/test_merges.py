@@ -7,8 +7,8 @@ from gitpy.exceptions import MergeConflict
 
 class TestBasicConflicts(CommittedRepositoryTest):
     def _changeFile(self, filename):
-        with open(os.path.join(self.repo.path, filename), "ab") as f:
-            print >>f, "new change", random.random()
+        with open(os.path.join(self.repo.path, filename), "a") as f:
+            f.write("new change %f\n" % (random.random(), ))
         self.repo.add(filename)
         self.repo.commit("new change")
     def testBasicConflicts(self):
@@ -23,7 +23,7 @@ class TestBasicConflicts(CommittedRepositoryTest):
         self._changeFile(filename)
         try:
             self.repo.merge(branch1)
-        except MergeConflict, e:
+        except MergeConflict:
             pass
         else:
             self.fail()

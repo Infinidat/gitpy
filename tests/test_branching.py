@@ -52,14 +52,13 @@ class TestBranching(CommittedRepositoryTest):
         branch...
         """
         branch = self.repo.createBranch('new_branch')
-        with open(os.path.join(self.repo.path, ".git", "refs", "heads", "alias_branch"), "wb") as alias_branch_file:
-            print >> alias_branch_file, "ref: refs/heads/new_branch"
-
+        with open(os.path.join(self.repo.path, ".git", "refs", "heads", "alias_branch"), "w") as alias_branch_file:
+            alias_branch_file.write("ref: refs/heads/new_branch\n")
         branch = self.repo.getBranchByName('alias_branch')
         self.failUnless(isinstance(branch, LocalBranchAlias))
         self.failUnless(branch.name == 'alias_branch')
         self.failUnless(branch.dest == 'new_branch')
-        
+
 
 if __name__ == '__main__':
     unittest.main()

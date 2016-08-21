@@ -1,7 +1,6 @@
 #! /usr/bin/python
 import unittest
 import os
-import commands
 from utils import get_temporary_location
 from utils import delete_repository
 from gitpy import LocalRepository
@@ -39,8 +38,8 @@ class ModifiedRepositoryTest(EmptyRepositoryTest):
     def setUp(self):
         super(ModifiedRepositoryTest, self).setUp()
         self.repo.init()
-        with open(os.path.join(self.repo.path, self.FILENAME), "wb") as f:
-            print >>f, "Hey!"
+        with open(os.path.join(self.repo.path, self.FILENAME), "w") as f:
+            f.write("Hey!\n")
         self.assertFalse(self.repo.isWorkingDirectoryClean())
 
 class ModifiedRepositories(ModifiedRepositoryTest):
@@ -65,8 +64,8 @@ class CleaningUntrackedFiles(ModifiedRepositoryTest):
         self.repo.cleanUntrackedFiles()
         self.failIf(self.repo.getUntrackedFiles())
     def testCleaningUpUntrackedFiles(self):
-        with open(os.path.join(self.repo.path, "dirty_file"), "wb") as f:
-            print >> f, "data"
+        with open(os.path.join(self.repo.path, "dirty_file"), "w") as f:
+            f.write("data\n")
         self.failUnless(self.repo.getUntrackedFiles())
         self._clean()
         #check directory cleanups

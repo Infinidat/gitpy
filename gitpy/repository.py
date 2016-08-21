@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from collections import Sequence
 from infi.execute import execute
-from StringIO import StringIO
+from six import StringIO, string_types
 import re
 import os
 import subprocess
@@ -57,7 +57,7 @@ class Repository(ref_container.RefContainer):
         return '.'
     def _logGitCommand(self, command, cwd):
         if self._loggingEnabled:
-            print >> sys.stderr, ">>", command
+            sys.stderr.write(">>%s\n" % (command, ))
     def enableLogging(self):
         self._loggingEnabled = True
     def disableLogging(self):
@@ -71,8 +71,8 @@ class Repository(ref_container.RefContainer):
         returned.wait()
         # API compatability
         returned.returncode = returned.get_returncode()
-        returned.stdout = StringIO(returned.get_stdout())
-        returned.stderr = StringIO(returned.get_stderr())
+        returned.stdout = StringIO(returned.get_stdout().decode("UTF-8"))
+        returned.stderr = StringIO(returned.get_stderr().decode("UTF-8"))
         return returned
     def _executeGitCommandAssertSuccess(self, command, **kwargs):
         returned = self._executeGitCommand(command, **kwargs)
@@ -156,7 +156,7 @@ class LocalRepository(Repository):
             repo = repo.path
         elif isinstance(repo, RemoteRepository):
             repo = repo.url
-        elif not isinstance(repo, basestring):
+        elif not isinstance(repo, string_types):
             raise TypeError("Cannot clone from %r" % (repo,))
         return repo
     def clone(self, repo):
@@ -274,7 +274,7 @@ class LocalRepository(Repository):
     def isWorkingDirectoryClean(self):
         return not (self.getUntrackedFiles() or self.getChangedFiles() or self.getStagedFiles())
     def __contains__(self, thing):
-        if isinstance(thing, basestring) or isinstance(thing, commit.Commit):
+        if isinstance(thing, string_types) or isinstance(thing, commit.Commit):
             return self.containsCommit(thing)
         raise NotImplementedError()
     ################################ Staging content ###############################
@@ -339,7 +339,7 @@ class LocalRepository(Repository):
                                                      "--no-ff" if not allowFastForward else None,
                                                      "--log" if log else None,
                                                      ("-m \"%s\"" % message) if message is not None else None))
-        except GitCommandFailedException, e:
+        except GitCommandFailedException as e:
             # git-merge tends to ignore the stderr rule...
             output = e.stdout + e.stderr
             if 'conflict' in output.lower():
@@ -407,7 +407,7 @@ class LocalRepository(Repository):
             remote = remote.url
         elif isinstance(remote, LocalRepository):
             remote = remote.path
-        if remote is not None and not isinstance(remote, basestring):
+        if remote is not None and not isinstance(remote, string_types):
             raise TypeError("Invalid type for 'remote' parameter: %s" % (type(remote),))
         command = "git push %s %s" % (remote if remote is not None else "", refspec)
         self._executeGitCommandAssertSuccess(command)

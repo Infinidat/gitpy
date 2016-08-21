@@ -14,8 +14,8 @@ class CollaborationTest(unittest.TestCase):
         self.repo1 = LocalRepository(path1)
         self.repo1.init()
         for i in range(10):
-            with open(os.path.join(self.repo1.path, "file_%s.txt" % i), "wb") as output:
-                print >>output, "This is file", i
+            with open(os.path.join(self.repo1.path, "file_%s.txt" % i), "w") as output:
+                output.write("This is file %d" % (i, ))
         self.repo1.addAll()
         self.repo1.commit(message="init")
         self.repo2 = LocalRepository(path2)
@@ -39,8 +39,8 @@ class CollaborationTest(unittest.TestCase):
     def testCollaboration(self):
         new_file_base_name = "new_file.txt"
         new_filename = os.path.join(self.repo1.path, new_file_base_name)
-        with open(new_filename, "wb") as f:
-            print >> f, "hello there!"
+        with open(new_filename, "w") as f:
+            f.write("ello there!")
         self.assertTrue(new_file_base_name in self.repo1.getUntrackedFiles())
         self.repo1.addAll()
         self.assertTrue(any(f.filename == new_file_base_name for f in self.repo1.getStagedFiles()))

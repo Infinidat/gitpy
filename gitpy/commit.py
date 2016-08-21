@@ -22,6 +22,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from six import string_types
 from .ref import Ref
 from .files import ModifiedFile
 
@@ -44,7 +45,7 @@ class Commit(Ref):
             other = other.hash
         if other is None:
             return False
-        if not isinstance(other, basestring):
+        if not isinstance(other, string_types):
             raise TypeError("Comparing %s and %s" % (type(self), type(other)))
         return (self.hash == other.lower())
     def getParents(self):

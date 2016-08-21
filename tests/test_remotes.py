@@ -9,8 +9,8 @@ class RemoteTest(CommittedRepositoryTest):
     def testAddingRemotes(self):
         new_repo = LocalRepository(utils.get_temporary_location())
         new_repo.init()
-        with open(os.path.join(new_repo.path, "some_file"), "wb") as f:
-            print >> f, "new file"
+        with open(os.path.join(new_repo.path, "some_file"), "w") as f:
+            f.write("new file\n")
         new_repo.addAll()
         new_repo.commit(message="initial change")
         REMOTE_NAME = 'remote'

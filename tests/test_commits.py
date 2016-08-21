@@ -13,8 +13,8 @@ class CommittedRepositoryTest(ModifiedRepositoryTest):
     def makeSomeChange(self):
         filename = random.choice(self.repo.getUnchangedFiles())
         full_filename = os.path.join(self.repo.path, filename)
-        with open(full_filename, "ab") as f:
-            print >>f, "some change at", time.asctime()
+        with open(full_filename, "a") as f:
+            f.write("some change at %s" % (time.asctime(), ))
         return filename
     def commitSomeChange(self, name="new change"):
         previous = self.repo.getHead()
