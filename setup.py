@@ -30,4 +30,15 @@ setup(name="git-py",
       author_email="vmalloc@gmail.com",
       version="1.0.1",
       install_requires=["infi.execute>=0.1", "six"],
-      packages=["gitpy"])
+      packages=["gitpy"],
+      # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      classifiers = [
+          "Intended Audience :: Developers",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: Python Software Foundation License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 3",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+      ],)
