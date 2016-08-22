@@ -28,7 +28,7 @@ setup(name="git-py",
       description="Python bindings for the Git source control system",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
-      version="1.0.1",
+      version="1.0.2",
       install_requires=["infi.execute>=0.1", "six"],
       packages=["gitpy"],
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
